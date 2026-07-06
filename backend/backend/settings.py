@@ -190,5 +190,7 @@ else:
         "http://localhost:5173",
     ]
 
+# CORS Configuration (Temporary for testing)
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
