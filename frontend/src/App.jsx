@@ -84,18 +84,25 @@ function App() {
   const [view, setView] = useState('user'); // 'user' or 'admin'
   const [userSubView, setUserSubView] = useState('report'); // 'report' or 'directory' (Campus Digital Tools Directory)
   
-  const [feedbacks, setFeedbacks] = useState(() => {
-    const saved = localStorage.getItem('campus_feedbacks');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error("Error reading feedbacks from localStorage", e);
-      }
-    }
-    localStorage.setItem('campus_feedbacks', JSON.stringify(initialMockResponses));
-    return initialMockResponses;
-  });
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load feedbacks from database on mount
+  useEffect(() => {
+    fetch('http://localhost:8000/api/feedbacks/')
+      .then(res => {
+        if (!res.ok) throw new Error("Could not fetch feedbacks");
+        return res.json();
+      })
+      .then(data => {
+        setFeedbacks(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error loading feedbacks:", err);
+        setLoading(false);
+      });
+  }, []);
 
   // User form states
   const [selectedProblems, setSelectedProblems] = useState([]);
@@ -120,10 +127,7 @@ function App() {
   const [solStatus, setSolStatus] = useState('Ideation');
   const [solDesc, setSolDesc] = useState('');
 
-  // Synchronize localStorage whenever feedbacks state changes
-  useEffect(() => {
-    localStorage.setItem('campus_feedbacks', JSON.stringify(feedbacks));
-  }, [feedbacks]);
+  // Synchronize localStorage has been removed; data is persisted in PostgreSQL
 
   // Synchronize dev console input when a feedback is clicked
   useEffect(() => {
@@ -154,9 +158,7 @@ function App() {
       priority = "Medium";
     }
 
-    const newFeedback = {
-      id: "fb-" + Date.now(),
-      timestamp: new Date().toISOString(),
+    const payload = {
       problems: selectedProblems.length > 0 ? selectedProblems : ["Other"],
       frequency: frequency || "Occasionally",
       affected: affected || "Everyone",
@@ -165,12 +167,28 @@ function App() {
       userGroup: userGroup || "Both",
       description: description.trim() || "No detailed description provided.",
       priority,
-      status: "Pending",
-      solution: null // Added by Admin later
+      status: "Pending"
     };
 
-    setFeedbacks([newFeedback, ...feedbacks]);
-    setFormSubmitted(true);
+    fetch('http://localhost:8000/api/feedbacks/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Server error");
+        return res.json();
+      })
+      .then(newFeedback => {
+        setFeedbacks([newFeedback, ...feedbacks]);
+        setFormSubmitted(true);
+      })
+      .catch(err => {
+        console.error("Error submitting feedback:", err);
+        alert("Failed to submit feedback. Make sure the backend server is running.");
+      });
   };
 
   // Reset form inputs for next submission
@@ -204,23 +222,49 @@ function App() {
 
   // Update status or priority of a feedback item (Admin role)
   const updateFeedbackStatus = (id, newStatus) => {
-    const updated = feedbacks.map(item => 
-      item.id === id ? { ...item, status: newStatus } : item
-    );
-    setFeedbacks(updated);
-    if (selectedFeedback && selectedFeedback.id === id) {
-      setSelectedFeedback({ ...selectedFeedback, status: newStatus });
-    }
+    const dbId = typeof id === 'string' && id.startsWith('fb-') ? id.replace('fb-', '') : id;
+    fetch(`http://localhost:8000/api/feedbacks/${dbId}/`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ status: newStatus })
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Server error");
+        return res.json();
+      })
+      .then(updatedItem => {
+        const updated = feedbacks.map(item => item.id === id ? updatedItem : item);
+        setFeedbacks(updated);
+        if (selectedFeedback && selectedFeedback.id === id) {
+          setSelectedFeedback(updatedItem);
+        }
+      })
+      .catch(err => console.error("Error updating status:", err));
   };
 
   const updateFeedbackPriority = (id, newPriority) => {
-    const updated = feedbacks.map(item => 
-      item.id === id ? { ...item, priority: newPriority } : item
-    );
-    setFeedbacks(updated);
-    if (selectedFeedback && selectedFeedback.id === id) {
-      setSelectedFeedback({ ...selectedFeedback, priority: newPriority });
-    }
+    const dbId = typeof id === 'string' && id.startsWith('fb-') ? id.replace('fb-', '') : id;
+    fetch(`http://localhost:8000/api/feedbacks/${dbId}/`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ priority: newPriority })
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Server error");
+        return res.json();
+      })
+      .then(updatedItem => {
+        const updated = feedbacks.map(item => item.id === id ? updatedItem : item);
+        setFeedbacks(updated);
+        if (selectedFeedback && selectedFeedback.id === id) {
+          setSelectedFeedback(updatedItem);
+        }
+      })
+      .catch(err => console.error("Error updating priority:", err));
   };
 
   // Update or delete digital solutions linked to a feedback ticket
@@ -237,9 +281,6 @@ function App() {
       description: solDesc.trim() || "No description provided."
     };
 
-    // Auto-align feedback ticket status:
-    // If solution is Deployed -> Resolve ticket
-    // If solution is In Development -> In Progress ticket
     let targetTicketStatus = "Pending";
     if (solStatus === "Deployed") {
       targetTicketStatus = "Resolved";
@@ -247,40 +288,88 @@ function App() {
       targetTicketStatus = "In Progress";
     }
 
-    const updated = feedbacks.map(item => 
-      item.id === id ? { ...item, solution: newSolutionObj, status: targetTicketStatus } : item
-    );
-
-    setFeedbacks(updated);
-    setSelectedFeedback(prev => ({ ...prev, solution: newSolutionObj, status: targetTicketStatus }));
-    alert("Digital Solution saved and synced to the public directory!");
+    const dbId = typeof id === 'string' && id.startsWith('fb-') ? id.replace('fb-', '') : id;
+    fetch(`http://localhost:8000/api/feedbacks/${dbId}/`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        solution: newSolutionObj,
+        status: targetTicketStatus
+      })
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Server error");
+        return res.json();
+      })
+      .then(updatedItem => {
+        const updated = feedbacks.map(item => item.id === id ? updatedItem : item);
+        setFeedbacks(updated);
+        setSelectedFeedback(updatedItem);
+        alert("Digital Solution saved and synced to the public directory!");
+      })
+      .catch(err => console.error("Error saving solution:", err));
   };
 
   const handleRemoveSolution = (id) => {
     if (window.confirm("Remove this digital solution? It will be deleted from the directory.")) {
-      const updated = feedbacks.map(item => 
-        item.id === id ? { ...item, solution: null } : item
-      );
-      setFeedbacks(updated);
-      setSelectedFeedback(prev => ({ ...prev, solution: null }));
-      setSolName('');
-      setSolDesc('');
-      alert("Digital Solution removed.");
+      const dbId = typeof id === 'string' && id.startsWith('fb-') ? id.replace('fb-', '') : id;
+      fetch(`http://localhost:8000/api/feedbacks/${dbId}/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          solution: null
+        })
+      })
+        .then(res => {
+          if (!res.ok) throw new Error("Server error");
+          return res.json();
+        })
+        .then(updatedItem => {
+          const updated = feedbacks.map(item => item.id === id ? updatedItem : item);
+          setFeedbacks(updated);
+          setSelectedFeedback(updatedItem);
+          setSolName('');
+          setSolDesc('');
+          alert("Digital Solution removed.");
+        })
+        .catch(err => console.error("Error removing solution:", err));
     }
   };
 
   const deleteFeedback = (id) => {
     if (window.confirm("Are you sure you want to delete this response?")) {
-      setFeedbacks(feedbacks.filter(item => item.id !== id));
-      setSelectedFeedback(null);
+      const dbId = typeof id === 'string' && id.startsWith('fb-') ? id.replace('fb-', '') : id;
+      fetch(`http://localhost:8000/api/feedbacks/${dbId}/`, {
+        method: 'DELETE'
+      })
+        .then(res => {
+          if (!res.ok) throw new Error("Server error");
+          setFeedbacks(feedbacks.filter(item => item.id !== id));
+          setSelectedFeedback(null);
+        })
+        .catch(err => console.error("Error deleting feedback:", err));
     }
   };
 
   const resetDatabase = () => {
     if (window.confirm("Reset dashboard data back to initial mock responses?")) {
-      setFeedbacks(initialMockResponses);
-      localStorage.setItem('campus_feedbacks', JSON.stringify(initialMockResponses));
-      setSelectedFeedback(null);
+      fetch('http://localhost:8000/api/feedbacks/reset/', {
+        method: 'POST',
+      })
+        .then(res => {
+          if (!res.ok) throw new Error("Server error");
+          return res.json();
+        })
+        .then(data => {
+          setFeedbacks(data);
+          setSelectedFeedback(null);
+          alert("Database reset successfully.");
+        })
+        .catch(err => console.error("Error resetting database:", err));
     }
   };
 
@@ -311,7 +400,41 @@ function App() {
   // Extract all feedbacks that have active or in-development digital solutions
   const deployedSolutions = feedbacks.filter(item => item.solution && item.solution.name);
 
+  if (loading) {
+    return (
+      <div className="loading-container" style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        background: 'radial-gradient(circle at top right, #1e1e2f 0%, #0d0d15 100%)',
+        color: '#fff',
+        fontFamily: "'Outfit', sans-serif"
+      }}>
+        <div className="spinner" style={{
+          width: '50px',
+          height: '50px',
+          border: '3px solid rgba(255,255,255,0.1)',
+          borderTop: '3px solid #6366f1',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          marginBottom: '20px'
+        }} />
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 600, letterSpacing: '0.5px' }}>Loading Feedback Hub...</h2>
+        <p style={{ color: '#94a3b8', marginTop: '8px' }}>Connecting to PostgreSQL database</p>
+      </div>
+    );
+  }
+
   return (
+
     <div className="app-container">
       {/* App Header */}
       <header className="app-header">
