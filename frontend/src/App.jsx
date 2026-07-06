@@ -187,6 +187,225 @@ function App() {
     }
   };
 
+  const downloadResponsePDF = (item) => {
+    const printWindow = window.open('', '_blank', 'width=800,height=900');
+    if (!printWindow) {
+      alert("Please allow popups to print/download the response report.");
+      return;
+    }
+
+    const formattedProblems = Array.isArray(item.problems) ? item.problems.join(', ') : item.problems;
+    const formattedToolTypes = Array.isArray(item.digitalToolTypes) ? item.digitalToolTypes.join(', ') : item.digitalToolTypes;
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Campus Feedback Response - ${item.id}</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+          body {
+            font-family: 'Outfit', 'Segoe UI', Arial, sans-serif;
+            color: #1e293b;
+            margin: 0;
+            padding: 40px;
+            line-height: 1.6;
+            background-color: #fff;
+          }
+          .header {
+            border-bottom: 3px solid #6366f1;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          .header-left h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+          }
+          .header-left p {
+            margin: 6px 0 0 0;
+            font-size: 14px;
+            color: #64748b;
+          }
+          .header-right {
+            text-align: right;
+          }
+          .ticket-badge {
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: 600;
+          }
+          .meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 35px;
+            border: 1px solid #e2e8f0;
+          }
+          .meta-item {
+            font-size: 14px;
+            color: #475569;
+          }
+          .meta-item strong {
+            color: #0f172a;
+          }
+          .qa-card {
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+          }
+          .qa-card:last-child {
+            border-bottom: none;
+          }
+          .question {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          .q-num {
+            background: #6366f1;
+            color: #fff;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+          }
+          .answer {
+            font-size: 14px;
+            color: #334155;
+            background: #fafafa;
+            padding: 12px 18px;
+            border-left: 4px solid #6366f1;
+            border-radius: 0 8px 8px 0;
+            white-space: pre-wrap;
+          }
+          .footer {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 20px;
+          }
+          @media print {
+            body {
+              padding: 20px;
+              background-color: #fff;
+            }
+            .meta-grid {
+              background: #f8fafc !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+            .q-num {
+              background: #6366f1 !important;
+              color: #fff !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+            .answer {
+              background: #fafafa !important;
+              border-left-color: #6366f1 !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="header-left">
+            <h1>Campus Feedback Portal</h1>
+            <p>Voice Your Problems &middot; Response Detail Report</p>
+          </div>
+          <div class="header-right">
+            <div class="ticket-badge">${item.id}</div>
+          </div>
+        </div>
+
+        <div class="meta-grid">
+          <div class="meta-item"><strong>Submitter Name:</strong> ${item.name || 'Anonymous'}</div>
+          <div class="meta-item"><strong>Department/Branch:</strong> ${item.department || 'N/A'}</div>
+          <div class="meta-item"><strong>Submission Date:</strong> ${new Date(item.timestamp).toLocaleString()}</div>
+          <div class="meta-item"><strong>Document Type:</strong> Individual Response Log</div>
+        </div>
+
+        <div class="qa-card">
+          <div class="question"><span class="q-num">1</span> What type of problem is this?</div>
+          <div class="answer">${formattedProblems || 'None selected'}</div>
+        </div>
+
+        <div class="qa-card">
+          <div class="question"><span class="q-num">2</span> How often does this problem occur?</div>
+          <div class="answer">${item.frequency}</div>
+        </div>
+
+        <div class="qa-card">
+          <div class="question"><span class="q-num">3</span> Who is most affected by it?</div>
+          <div class="answer">${item.affected}</div>
+        </div>
+
+        <div class="qa-card">
+          <div class="question"><span class="q-num">4</span> Can a software program, app, or website help solve it?</div>
+          <div class="answer">${item.digitalToolHelp}</div>
+        </div>
+
+        <div class="qa-card">
+          <div class="question"><span class="q-num">5</span> What kind of digital tool would help?</div>
+          <div class="answer">${formattedToolTypes || 'None selected'}</div>
+        </div>
+
+        <div class="qa-card">
+          <div class="question"><span class="q-num">6</span> Who would use this solution?</div>
+          <div class="answer">${item.userGroup}</div>
+        </div>
+
+        <div class="qa-card">
+          <div class="question"><span class="q-num">7</span> Description of the Problem</div>
+          <div class="answer">${item.description}</div>
+        </div>
+
+        <div class="footer">
+          Generated automatically by Smart Campus Feedback System on ${new Date().toLocaleDateString()}
+        </div>
+
+        <script>
+          window.onload = function() {
+            window.print();
+            setTimeout(function() {
+              window.close();
+            }, 500);
+          };
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
+
   const deleteFeedback = (id) => {
     if (window.confirm("Are you sure you want to delete this response?")) {
       const dbId = typeof id === 'string' && id.startsWith('fb-') ? id.replace('fb-', '') : id;
@@ -874,41 +1093,80 @@ function App() {
                             <span><strong>Frequency:</strong> {item.frequency}</span>
                             <span><strong>Target Users:</strong> {item.userGroup}</span>
                           </div>
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteFeedback(item.id);
-                            }}
-                            className="reset-filters-btn"
-                            style={{
-                              background: 'rgba(239, 68, 68, 0.1)',
-                              color: '#ef4444',
-                              border: '1px solid rgba(239, 68, 68, 0.2)',
-                              padding: '6px 12px',
-                              borderRadius: '6px',
-                              fontSize: '0.8rem',
-                              fontWeight: 500,
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseOver={(e) => {
-                              e.currentTarget.style.background = '#ef4444';
-                              e.currentTarget.style.color = '#fff';
-                            }}
-                            onMouseOut={(e) => {
-                              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                              e.currentTarget.style.color = '#ef4444';
-                            }}
-                          >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                              <polyline points="3 6 5 6 21 6"></polyline>
-                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
-                            Delete Response
-                          </button>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                downloadResponsePDF(item);
+                              }}
+                              className="reset-filters-btn"
+                              style={{
+                                background: 'rgba(99, 102, 241, 0.1)',
+                                color: '#818cf8',
+                                border: '1px solid rgba(99, 102, 241, 0.2)',
+                                padding: '6px 12px',
+                                borderRadius: '6px',
+                                fontSize: '0.8rem',
+                                fontWeight: 500,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseOver={(e) => {
+                                e.currentTarget.style.background = '#6366f1';
+                                e.currentTarget.style.color = '#fff';
+                              }}
+                              onMouseOut={(e) => {
+                                e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+                                e.currentTarget.style.color = '#818cf8';
+                              }}
+                            >
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                              </svg>
+                              Print / PDF
+                            </button>
+
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteFeedback(item.id);
+                              }}
+                              className="reset-filters-btn"
+                              style={{
+                                background: 'rgba(239, 68, 68, 0.1)',
+                                color: '#ef4444',
+                                border: '1px solid rgba(239, 68, 68, 0.2)',
+                                padding: '6px 12px',
+                                borderRadius: '6px',
+                                fontSize: '0.8rem',
+                                fontWeight: 500,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseOver={(e) => {
+                                e.currentTarget.style.background = '#ef4444';
+                                e.currentTarget.style.color = '#fff';
+                              }}
+                              onMouseOut={(e) => {
+                                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                                e.currentTarget.style.color = '#ef4444';
+                              }}
+                            >
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                              </svg>
+                              Delete Response
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))
