@@ -1,28 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { initialMockResponses } from './mockData';
 
-// Platform emoji icons for the solutions directory
-const platformIcon = (type) => {
-  const icons = {
-    'Mobile App': '📱',
-    'Website Portal': '🌐',
-    'Chatbot / Helpdesk': '🤖',
-    'Notification / Alert System': '🔔',
-    'Booking / Scheduling System': '📅',
-    'QR-based System': '📷',
-    'Other': '⚙️'
-  };
-  return icons[type] || '💡';
-};
 
-// Map solution status to CSS modifier class
-const solutionCardClass = (status) => {
-  if (status === 'Deployed') return 'is-deployed';
-  if (status === 'In Development') return 'is-in-development';
-  return 'is-ideation';
-};
+
 
 // Option lists for the questionnaire
+const departmentOptions = [
+  "Computer Science & Engineering",
+  "Information Technology",
+  "Electrical Engineering",
+  "Mechanical Engineering",
+  "Civil Engineering",
+  "Physics",
+  "Chemistry",
+  "Business School",
+  "Other"
+];
+
 const problemOptions = [
   "Infrastructure (classroom, lab, hostel, washroom, etc.)",
   "Internet / Wi-Fi",
@@ -81,9 +74,7 @@ const isToday = (dateString) => {
 };
 
 function App() {
-  const [view, setView] = useState('user'); // 'user' or 'admin'
-  const [userSubView, setUserSubView] = useState('report'); // 'report' or 'directory' (Campus Digital Tools Directory)
-  
+  const view = window.location.pathname === '/admin' ? 'admin' : 'user';
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -105,6 +96,8 @@ function App() {
   }, []);
 
   // User form states
+  const [submitterName, setSubmitterName] = useState('');
+  const [submitterDept, setSubmitterDept] = useState('');
   const [selectedProblems, setSelectedProblems] = useState([]);
   const [frequency, setFrequency] = useState('');
   const [affected, setAffected] = useState('');
@@ -114,51 +107,23 @@ function App() {
   const [description, setDescription] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
 
+  // Admin access control & routing states
+  const currentPath = window.location.pathname;
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
   // Admin filter & selection states
   const [categoryFilter, setCategoryFilter] = useState('All');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [priorityFilter, setPriorityFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFeedback, setSelectedFeedback] = useState(null);
-
-  // Admin Developer Console form states (for building solutions linked to feedback)
-  const [solName, setSolName] = useState('');
-  const [solType, setSolType] = useState('Mobile App');
-  const [solStatus, setSolStatus] = useState('Ideation');
-  const [solDesc, setSolDesc] = useState('');
-
-  // Synchronize localStorage has been removed; data is persisted in PostgreSQL
-
-  // Synchronize dev console input when a feedback is clicked
-  useEffect(() => {
-    if (selectedFeedback) {
-      if (selectedFeedback.solution) {
-        setSolName(selectedFeedback.solution.name || '');
-        setSolType(selectedFeedback.solution.type || 'Mobile App');
-        setSolStatus(selectedFeedback.solution.status || 'Ideation');
-        setSolDesc(selectedFeedback.solution.description || '');
-      } else {
-        setSolName('');
-        setSolType('Mobile App');
-        setSolStatus('Ideation');
-        setSolDesc('');
-      }
-    }
-  }, [selectedFeedback]);
 
   // Form submit handler
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Auto-calculate default priority based on frequency and affected scope
-    let priority = "Low";
-    if (frequency === "Daily" || affected === "Everyone") {
-      priority = "High";
-    } else if (frequency === "Weekly" || affected === "Students" || affected === "Faculty") {
-      priority = "Medium";
-    }
 
     const payload = {
+      name: submitterName.trim() || "Anonymous",
+      department: submitterDept || "N/A",
       problems: selectedProblems.length > 0 ? selectedProblems : ["Other"],
       frequency: frequency || "Occasionally",
       affected: affected || "Everyone",
@@ -166,7 +131,7 @@ function App() {
       digitalToolTypes: selectedToolTypes,
       userGroup: userGroup || "Both",
       description: description.trim() || "No detailed description provided.",
-      priority,
+      priority: "Low",
       status: "Pending"
     };
 
@@ -193,6 +158,8 @@ function App() {
 
   // Reset form inputs for next submission
   const resetForm = () => {
+    setSubmitterName('');
+    setSubmitterDept('');
     setSelectedProblems([]);
     setFrequency('');
     setAffected('');
@@ -220,126 +187,6 @@ function App() {
     }
   };
 
-  // Update status or priority of a feedback item (Admin role)
-  const updateFeedbackStatus = (id, newStatus) => {
-    const dbId = typeof id === 'string' && id.startsWith('fb-') ? id.replace('fb-', '') : id;
-    fetch(`http://localhost:8000/api/feedbacks/${dbId}/`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ status: newStatus })
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("Server error");
-        return res.json();
-      })
-      .then(updatedItem => {
-        const updated = feedbacks.map(item => item.id === id ? updatedItem : item);
-        setFeedbacks(updated);
-        if (selectedFeedback && selectedFeedback.id === id) {
-          setSelectedFeedback(updatedItem);
-        }
-      })
-      .catch(err => console.error("Error updating status:", err));
-  };
-
-  const updateFeedbackPriority = (id, newPriority) => {
-    const dbId = typeof id === 'string' && id.startsWith('fb-') ? id.replace('fb-', '') : id;
-    fetch(`http://localhost:8000/api/feedbacks/${dbId}/`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ priority: newPriority })
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("Server error");
-        return res.json();
-      })
-      .then(updatedItem => {
-        const updated = feedbacks.map(item => item.id === id ? updatedItem : item);
-        setFeedbacks(updated);
-        if (selectedFeedback && selectedFeedback.id === id) {
-          setSelectedFeedback(updatedItem);
-        }
-      })
-      .catch(err => console.error("Error updating priority:", err));
-  };
-
-  // Update or delete digital solutions linked to a feedback ticket
-  const handleSaveSolution = (id) => {
-    if (!solName.trim()) {
-      alert("Please provide a name for this digital solution app/system.");
-      return;
-    }
-    
-    const newSolutionObj = {
-      name: solName.trim(),
-      type: solType,
-      status: solStatus,
-      description: solDesc.trim() || "No description provided."
-    };
-
-    let targetTicketStatus = "Pending";
-    if (solStatus === "Deployed") {
-      targetTicketStatus = "Resolved";
-    } else if (solStatus === "In Development") {
-      targetTicketStatus = "In Progress";
-    }
-
-    const dbId = typeof id === 'string' && id.startsWith('fb-') ? id.replace('fb-', '') : id;
-    fetch(`http://localhost:8000/api/feedbacks/${dbId}/`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        solution: newSolutionObj,
-        status: targetTicketStatus
-      })
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("Server error");
-        return res.json();
-      })
-      .then(updatedItem => {
-        const updated = feedbacks.map(item => item.id === id ? updatedItem : item);
-        setFeedbacks(updated);
-        setSelectedFeedback(updatedItem);
-        alert("Digital Solution saved and synced to the public directory!");
-      })
-      .catch(err => console.error("Error saving solution:", err));
-  };
-
-  const handleRemoveSolution = (id) => {
-    if (window.confirm("Remove this digital solution? It will be deleted from the directory.")) {
-      const dbId = typeof id === 'string' && id.startsWith('fb-') ? id.replace('fb-', '') : id;
-      fetch(`http://localhost:8000/api/feedbacks/${dbId}/`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          solution: null
-        })
-      })
-        .then(res => {
-          if (!res.ok) throw new Error("Server error");
-          return res.json();
-        })
-        .then(updatedItem => {
-          const updated = feedbacks.map(item => item.id === id ? updatedItem : item);
-          setFeedbacks(updated);
-          setSelectedFeedback(updatedItem);
-          setSolName('');
-          setSolDesc('');
-          alert("Digital Solution removed.");
-        })
-        .catch(err => console.error("Error removing solution:", err));
-    }
-  };
-
   const deleteFeedback = (id) => {
     if (window.confirm("Are you sure you want to delete this response?")) {
       const dbId = typeof id === 'string' && id.startsWith('fb-') ? id.replace('fb-', '') : id;
@@ -349,7 +196,6 @@ function App() {
         .then(res => {
           if (!res.ok) throw new Error("Server error");
           setFeedbacks(feedbacks.filter(item => item.id !== id));
-          setSelectedFeedback(null);
         })
         .catch(err => console.error("Error deleting feedback:", err));
     }
@@ -366,7 +212,6 @@ function App() {
         })
         .then(data => {
           setFeedbacks(data);
-          setSelectedFeedback(null);
           alert("Database reset successfully.");
         })
         .catch(err => console.error("Error resetting database:", err));
@@ -376,8 +221,10 @@ function App() {
   // Calculate Metrics
   const totalResponses = feedbacks.length;
   const todayResponses = feedbacks.filter(item => isToday(item.timestamp)).length;
-  const resolvedResponses = feedbacks.filter(item => item.status === "Resolved").length;
-  const activeSolutionsCount = feedbacks.filter(item => item.solution && item.solution.status === 'Deployed').length;
+
+  // Calculate Unique Departments count
+  const uniqueDeptsList = feedbacks.map(item => item.department).filter(dept => dept && dept !== 'N/A');
+  const uniqueDepartmentsCount = new Set(uniqueDeptsList).size;
 
   // Calculate separate count for problems (e.g. Canteen, Infra, etc.)
   const categoryCounts = problemOptions.reduce((acc, cat) => {
@@ -390,15 +237,10 @@ function App() {
   // Filter feedbacks for the feed
   const filteredFeedbacks = feedbacks.filter(item => {
     const matchesCategory = categoryFilter === 'All' || item.problems.includes(categoryFilter);
-    const matchesStatus = statusFilter === 'All' || item.status === statusFilter;
-    const matchesPriority = priorityFilter === 'All' || item.priority === priorityFilter;
     const matchesSearch = item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.problems.some(p => p.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesCategory && matchesStatus && matchesPriority && matchesSearch;
+    return matchesCategory && matchesSearch;
   });
-
-  // Extract all feedbacks that have active or in-development digital solutions
-  const deployedSolutions = feedbacks.filter(item => item.solution && item.solution.name);
 
   if (loading) {
     return (
@@ -433,8 +275,118 @@ function App() {
     );
   }
 
-  return (
+  // Password-protected gate for /admin path
+  if (currentPath === '/admin' && !isAdminAuthenticated) {
+    const handleAdminLogin = (e) => {
+      e.preventDefault();
+      if (adminPassword === 'admin123') {
+        setIsAdminAuthenticated(true);
+        setLoginError('');
+      } else {
+        setLoginError('Invalid password. Please try again.');
+      }
+    };
 
+    return (
+      <div className="login-page-container" style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        background: 'radial-gradient(circle at top right, #1e1e2f 0%, #0d0d15 100%)',
+        fontFamily: "'Outfit', sans-serif",
+        padding: '20px'
+      }}>
+        <form onSubmit={handleAdminLogin} style={{
+          background: 'rgba(255, 255, 255, 0.03)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '24px',
+          padding: '40px',
+          width: '100%',
+          maxWidth: '400px',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center'
+        }}>
+          <div className="login-icon" style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '16px',
+            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '20px',
+            boxShadow: '0 8px 16px rgba(99, 102, 241, 0.3)'
+          }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <h2 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 600, marginBottom: '8px' }}>Admin Portal</h2>
+          <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '24px' }}>Please enter your credentials to access the dashboard.</p>
+          
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', marginBottom: '20px' }}>
+            <label htmlFor="admin-pass" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#94a3b8' }}>Password</label>
+            <input 
+              type="password" 
+              id="admin-pass"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              placeholder="••••••••"
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                background: 'rgba(15, 23, 42, 0.6)',
+                border: loginError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '10px',
+                color: '#fff',
+                outline: 'none',
+                fontSize: '1rem',
+                transition: 'border-color 0.2s'
+              }}
+              autoFocus
+            />
+            {loginError && (
+              <span style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                {loginError}
+              </span>
+            )}
+          </div>
+          
+          <button type="submit" style={{
+            width: '100%',
+            padding: '12px',
+            background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '10px',
+            fontSize: '1rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)',
+            transition: 'opacity 0.2s'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.opacity = 0.9}
+          onMouseOut={(e) => e.currentTarget.style.opacity = 1}
+          >
+            Unlock Dashboard
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  return (
     <div className="app-container">
       {/* App Header */}
       <header className="app-header">
@@ -446,295 +398,290 @@ function App() {
           </div>
         </div>
 
-        <nav className="nav-tabs">
-          <button 
-            className={`nav-tab ${view === 'user' ? 'active' : ''}`}
-            onClick={() => { setView('user'); resetForm(); }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 20h9"></path>
-              <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
-            </svg>
-            Submit Feedback
-          </button>
-          <button 
-            className={`nav-tab ${view === 'admin' ? 'active' : ''}`}
-            onClick={() => setView('admin')}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="9" y1="3" x2="9" y2="21"></line>
-              <line x1="15" y1="3" x2="15" y2="21"></line>
-              <line x1="3" y1="9" x2="21" y2="9"></line>
-              <line x1="3" y1="15" x2="21" y2="15"></line>
-            </svg>
-            Admin Dashboard
-          </button>
-        </nav>
+        {currentPath === '/admin' && isAdminAuthenticated && (
+          <nav className="nav-tabs">
+            <button 
+              className="nav-tab"
+              onClick={() => { window.location.href = '/'; }}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              Go to Submit Form
+            </button>
+            <button 
+              className="nav-tab active"
+              onClick={() => setIsAdminAuthenticated(false)}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ef4444' }}
+            >
+              🔒 Log Out
+            </button>
+          </nav>
+        )}
       </header>
 
       {/* Main Pages */}
       <main className="page-fade-in">
         {view === 'user' ? (
           <div className="user-page">
-            {/* Secondary navigation for reporting vs viewing active apps */}
-            <div className="user-nav-container">
-              <div className="user-submenu-tabs">
-                <button 
-                  className={`user-submenu-tab ${userSubView === 'report' ? 'active' : ''}`}
-                  onClick={() => setUserSubView('report')}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
+            {formSubmitted ? (
+              /* Encouraging confirmation screen */
+              <div className="confirmation-card page-fade-in">
+                <div className="success-icon-wrapper">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 6 9 17l-5-5"></path>
                   </svg>
-                  Report a Problem
-                </button>
-                <button 
-                  className={`user-submenu-tab ${userSubView === 'directory' ? 'active' : ''}`}
-                  onClick={() => setUserSubView('directory')}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
-                  </svg>
-                  Active Campus Apps ({deployedSolutions.length})
+                </div>
+                <h2>Feedback Logged!</h2>
+                <p>
+                  Thank you for speaking up. We take campus issues seriously. 
+                  Our developers evaluate each report to build and deploy custom digital tools.
+                </p>
+                <div className="encouragement-alert">
+                  <strong>We can deal with these problems!</strong> Administrators have received this request and are prioritizing the deployment of a custom app/portal to resolve it.
+                </div>
+                <button className="submit-btn" style={{ margin: '0 auto' }} onClick={resetForm}>
+                  Submit Another Response
                 </button>
               </div>
-            </div>
-
-            {userSubView === 'report' ? (
-              formSubmitted ? (
-                /* Encouraging confirmation screen */
-                <div className="confirmation-card page-fade-in">
-                  <div className="success-icon-wrapper">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 6 9 17l-5-5"></path>
-                    </svg>
-                  </div>
-                  <h2>Feedback Logged!</h2>
-                  <p>
-                    Thank you for speaking up. We take campus issues seriously. 
-                    Our developers evaluate each report to build and deploy custom digital tools.
-                  </p>
-                  <div className="encouragement-alert">
-                    <strong>We can deal with these problems!</strong> Administrators have received this request and are prioritizing the deployment of a custom app/portal to resolve it.
-                  </div>
-                  <button className="submit-btn" style={{ margin: '0 auto' }} onClick={resetForm}>
-                    Submit Another Response
-                  </button>
-                </div>
-              ) : (
-                /* User Questionnaire Page */
-                <div className="questionnaire-view page-fade-in">
-                  <div className="form-hero">
-                    <h2>Campus Voice Portal</h2>
-                    <p>Report physical, academic, or administrative friction. We develop software to solve them.</p>
-                  </div>
-
-                  <form onSubmit={handleSubmit} className="questionnaire-card">
-                    {/* Q1: Problem type (Checkboxes) */}
-                    <div className="question-group">
-                      <div className="question-title">
-                        <span className="question-number">1</span>
-                        <span>What type of problem is this?</span>
-                      </div>
-                      <div className="question-subtitle">Check one or more categories relating to the problem.</div>
-                      <div className="options-grid">
-                        {problemOptions.map(option => (
-                          <div 
-                            key={option} 
-                            className={`option-card ${selectedProblems.includes(option) ? 'selected' : ''}`}
-                            onClick={() => handleToggleProblem(option)}
-                          >
-                            <div className="checkbox-indicator">
-                              <svg viewBox="0 0 24 24">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                              </svg>
-                            </div>
-                            <span className="option-label">{option}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Q2: Frequency (Radio-style checkboxes) */}
-                    <div className="question-group">
-                      <div className="question-title">
-                        <span className="question-number">2</span>
-                        <span>How often does this problem occur?</span>
-                      </div>
-                      <div className="question-subtitle">Select the option that best represents its recurrence.</div>
-                      <div className="options-grid">
-                        {frequencyOptions.map(option => (
-                          <div 
-                            key={option}
-                            className={`option-card ${frequency === option ? 'selected' : ''}`}
-                            onClick={() => setFrequency(option)}
-                          >
-                            <div className="radio-indicator"></div>
-                            <span className="option-label">{option}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Q3: Who is affected (Radio-style checkboxes) */}
-                    <div className="question-group">
-                      <div className="question-title">
-                        <span className="question-number">3</span>
-                        <span>Who is most affected by it?</span>
-                      </div>
-                      <div className="question-subtitle">Who feels the direct impact of this issue?</div>
-                      <div className="options-grid">
-                        {affectedOptions.map(option => (
-                          <div 
-                            key={option}
-                            className={`option-card ${affected === option ? 'selected' : ''}`}
-                            onClick={() => setAffected(option)}
-                          >
-                            <div className="radio-indicator"></div>
-                            <span className="option-label">{option}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Q4: Can digital tools help (Radio-style checkboxes) */}
-                    <div className="question-group">
-                      <div className="question-title">
-                        <span className="question-number">4</span>
-                        <span>Could a digital tool help solve this?</span>
-                      </div>
-                      <div className="question-subtitle">Could automation, websites, apps, or smart notifications solve/ease this?</div>
-                      <div className="options-grid">
-                        {toolHelpOptions.map(option => (
-                          <div 
-                            key={option}
-                            className={`option-card ${toolHelp === option ? 'selected' : ''}`}
-                            onClick={() => setToolHelp(option)}
-                          >
-                            <div className="radio-indicator"></div>
-                            <span className="option-label">{option}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Q5: Kind of digital tool (Checkboxes) */}
-                    <div className="question-group">
-                      <div className="question-title">
-                        <span className="question-number">5</span>
-                        <span>What kind of digital tool would help?</span>
-                      </div>
-                      <div className="question-subtitle">Check one or more digital systems that would be useful.</div>
-                      <div className="options-grid">
-                        {toolTypeOptions.map(option => (
-                          <div 
-                            key={option}
-                            className={`option-card ${selectedToolTypes.includes(option) ? 'selected' : ''}`}
-                            onClick={() => handleToggleToolType(option)}
-                          >
-                            <div className="checkbox-indicator">
-                              <svg viewBox="0 0 24 24">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                              </svg>
-                            </div>
-                            <span className="option-label">{option}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Q6: Who would use solution (Radio-style checkboxes) */}
-                    <div className="question-group">
-                      <div className="question-title">
-                        <span className="question-number">6</span>
-                        <span>Who would use this solution?</span>
-                      </div>
-                      <div className="question-subtitle">Select primary end-users of the proposed software.</div>
-                      <div className="options-grid">
-                        {userGroupOptions.map(option => (
-                          <div 
-                            key={option}
-                            className={`option-card ${userGroup === option ? 'selected' : ''}`}
-                            onClick={() => setUserGroup(option)}
-                          >
-                            <div className="radio-indicator"></div>
-                            <span className="option-label">{option}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Q7: Description (Short Answer Box) */}
-                    <div className="question-group">
-                      <div className="question-title">
-                        <span className="question-number">7</span>
-                        <span>Describe It</span>
-                      </div>
-                      <div className="question-subtitle">In a few lines, describe the problem and what you'd want the solution to do.</div>
-                      <div className="textarea-wrapper">
-                        <textarea 
-                          className="feedback-textarea"
-                          placeholder="Example: 'Our college is a forest, so there is no map and Google Maps can't navigate correctly. We need a mobile map app specifically for our campus trails...'"
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                          required
-                        ></textarea>
-                      </div>
-                    </div>
-
-                    {/* Submit button */}
-                    <div className="form-actions">
-                      <button type="submit" className="submit-btn">
-                        Submit Response
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="22" y1="2" x2="11" y2="13"></line>
-                          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                        </svg>
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              )
             ) : (
-              /* Public Digital Solutions Directory */
-              <div className="directory-view page-fade-in" style={{ textAlign: 'center' }}>
+              /* User Questionnaire Page */
+              <div className="questionnaire-view page-fade-in">
                 <div className="form-hero">
-                  <h2>Active Campus Digital Tools</h2>
-                  <p>Check out the software programs, dashboards, and apps deployed in response to user feedback.</p>
+                  <h2>Campus Voice Portal</h2>
+                  <p>Report physical, academic, or administrative friction. We develop software to solve them.</p>
                 </div>
 
-                {deployedSolutions.length === 0 ? (
-                  <div className="no-records" style={{ maxWidth: '800px', margin: '0 auto' }}>
-                    No digital tools have been developed yet. Submit feedback and report campus friction to initiate app builds!
-                  </div>
-                ) : (
-                  <div className="solutions-grid">
-                    {deployedSolutions.map(item => (
-                      <div key={item.id} className={`solution-card ${solutionCardClass(item.solution.status)}`}>
-                        <div className="solution-card-header">
-                          <div className="solution-card-header-inner">
-                            <div className="solution-platform-icon">{platformIcon(item.solution.type)}</div>
-                            <h3 className="solution-card-title">{item.solution.name}</h3>
-                          </div>
-                          <span className="solution-card-type">{item.solution.type}</span>
-                        </div>
-                        <span className={`solution-status-badge ${item.solution.status.toLowerCase().replace(/ /g, '-')}`}>
-                          {item.solution.status === 'Deployed' && <span className="live-dot"></span>}
-                          {item.solution.status}
-                        </span>
-                        <p className="solution-card-description">{item.solution.description}</p>
-                        
-                        <div className="solution-card-problem-ref">
-                          <strong>Solving User Report:</strong>
-                          <span className="solution-card-problem-desc">"{item.description}"</span>
-                        </div>
+                <form onSubmit={handleSubmit} className="questionnaire-card">
+                  {/* Submitter Profile Details */}
+                  <div className="question-group profile-section" style={{
+                    padding: '24px',
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    borderRadius: '16px',
+                    marginBottom: '32px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px'
+                  }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                      Submitter Profile
+                    </h3>
+                    <div className="profile-inputs-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label htmlFor="submitter-name" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#94a3b8' }}>Full Name (Optional)</label>
+                        <input 
+                          type="text" 
+                          id="submitter-name"
+                          value={submitterName}
+                          onChange={(e) => setSubmitterName(e.target.value)}
+                          placeholder="Anonymous"
+                          style={{
+                            padding: '12px 16px',
+                            background: 'rgba(15, 23, 42, 0.6)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: '10px',
+                            color: '#fff',
+                            outline: 'none',
+                            fontSize: '0.9rem'
+                          }}
+                        />
                       </div>
-                    ))}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label htmlFor="submitter-dept" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#94a3b8' }}>Department / Branch</label>
+                        <select 
+                          id="submitter-dept"
+                          value={submitterDept}
+                          onChange={(e) => setSubmitterDept(e.target.value)}
+                          style={{
+                            padding: '12px 16px',
+                            background: 'rgba(15, 23, 42, 0.6)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: '10px',
+                            color: '#fff',
+                            outline: 'none',
+                            fontSize: '0.9rem',
+                            cursor: 'pointer'
+                          }}
+                          required
+                        >
+                          <option value="" disabled style={{ background: '#1e1e2f', color: '#64748b' }}>Select your department</option>
+                          {departmentOptions.map(dept => (
+                            <option key={dept} value={dept} style={{ background: '#1e1e2f', color: '#fff' }}>{dept}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
                   </div>
-                )}
+                  {/* Q1: Problem type (Checkboxes) */}
+                  <div className="question-group">
+                    <div className="question-title">
+                      <span className="question-number">1</span>
+                      <span>What type of problem is this?</span>
+                    </div>
+                    <div className="question-subtitle">Check one or more categories relating to the problem.</div>
+                    <div className="options-grid">
+                      {problemOptions.map(option => (
+                        <div 
+                          key={option} 
+                          className={`option-card ${selectedProblems.includes(option) ? 'selected' : ''}`}
+                          onClick={() => handleToggleProblem(option)}
+                        >
+                          <div className="checkbox-indicator">
+                            <svg viewBox="0 0 24 24">
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                          </div>
+                          <span className="option-label">{option}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Q2: Frequency (Radio-style checkboxes) */}
+                  <div className="question-group">
+                    <div className="question-title">
+                      <span className="question-number">2</span>
+                      <span>How often does this problem occur?</span>
+                    </div>
+                    <div className="question-subtitle">Select the option that best represents its recurrence.</div>
+                    <div className="options-grid">
+                      {frequencyOptions.map(option => (
+                        <div 
+                          key={option}
+                          className={`option-card ${frequency === option ? 'selected' : ''}`}
+                          onClick={() => setFrequency(option)}
+                        >
+                          <div className="radio-indicator"></div>
+                          <span className="option-label">{option}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Q3: Who is affected (Radio-style checkboxes) */}
+                  <div className="question-group">
+                    <div className="question-title">
+                      <span className="question-number">3</span>
+                      <span>Who is most affected by it?</span>
+                    </div>
+                    <div className="question-subtitle">Who feels the direct impact of this issue?</div>
+                    <div className="options-grid">
+                      {affectedOptions.map(option => (
+                        <div 
+                          key={option}
+                          className={`option-card ${affected === option ? 'selected' : ''}`}
+                          onClick={() => setAffected(option)}
+                        >
+                          <div className="radio-indicator"></div>
+                          <span className="option-label">{option}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Q4: Can digital tools help (Radio-style checkboxes) */}
+                  <div className="question-group">
+                    <div className="question-title">
+                      <span className="question-number">4</span>
+                      <span>Could a digital tool help solve this?</span>
+                    </div>
+                    <div className="question-subtitle">Could automation, websites, apps, or smart notifications solve/ease this?</div>
+                    <div className="options-grid">
+                      {toolHelpOptions.map(option => (
+                        <div 
+                          key={option}
+                          className={`option-card ${toolHelp === option ? 'selected' : ''}`}
+                          onClick={() => setToolHelp(option)}
+                        >
+                          <div className="radio-indicator"></div>
+                          <span className="option-label">{option}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Q5: Kind of digital tool (Checkboxes) */}
+                  <div className="question-group">
+                    <div className="question-title">
+                      <span className="question-number">5</span>
+                      <span>What kind of digital tool would help?</span>
+                    </div>
+                    <div className="question-subtitle">Check one or more digital systems that would be useful.</div>
+                    <div className="options-grid">
+                      {toolTypeOptions.map(option => (
+                        <div 
+                          key={option}
+                          className={`option-card ${selectedToolTypes.includes(option) ? 'selected' : ''}`}
+                          onClick={() => handleToggleToolType(option)}
+                        >
+                          <div className="checkbox-indicator">
+                            <svg viewBox="0 0 24 24">
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                          </div>
+                          <span className="option-label">{option}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Q6: Who would use solution (Radio-style checkboxes) */}
+                  <div className="question-group">
+                    <div className="question-title">
+                      <span className="question-number">6</span>
+                      <span>Who would use this solution?</span>
+                    </div>
+                    <div className="question-subtitle">Select primary end-users of the proposed software.</div>
+                    <div className="options-grid">
+                      {userGroupOptions.map(option => (
+                        <div 
+                          key={option}
+                          className={`option-card ${userGroup === option ? 'selected' : ''}`}
+                          onClick={() => setUserGroup(option)}
+                        >
+                          <div className="radio-indicator"></div>
+                          <span className="option-label">{option}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Q7: Description (Short Answer Box) */}
+                  <div className="question-group">
+                    <div className="question-title">
+                      <span className="question-number">7</span>
+                      <span>Describe It</span>
+                    </div>
+                    <div className="question-subtitle">In a few lines, describe the problem and what you'd want the solution to do.</div>
+                    <div className="textarea-wrapper">
+                      <textarea 
+                        className="feedback-textarea"
+                        placeholder="Example: 'Our college is a forest, so there is no map and Google Maps can't navigate correctly. We need a mobile map app specifically for our campus trails...'"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        required
+                      ></textarea>
+                    </div>
+                  </div>
+
+                  {/* Submit button */}
+                  <div className="form-actions">
+                    <button type="submit" className="submit-btn">
+                      Submit Response
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                      </svg>
+                    </button>
+                  </div>
+                </form>
               </div>
             )}
           </div>
@@ -787,17 +734,18 @@ function App() {
 
               <div className="metric-card solved">
                 <div>
-                  <div className="metric-label">Deployed Apps / Solutions</div>
-                  <div className="metric-value">{activeSolutionsCount}</div>
+                  <div className="metric-label">Unique Departments</div>
+                  <div className="metric-value">{uniqueDepartmentsCount}</div>
                   <div className="metric-change">
-                    {deployedSolutions.length} total solutions designed
+                    From all feedback records
                   </div>
                 </div>
                 <div className="metric-icon-box" style={{ color: 'var(--accent-cyan)', background: 'rgba(6, 182, 212, 0.05)' }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="12 2 2 7 12 12 22 7 12 2 12 2"></polygon>
-                    <polyline points="2 17 12 22 22 17"></polyline>
-                    <polyline points="2 12 12 17 22 12"></polyline>
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                   </svg>
                 </div>
               </div>
@@ -816,7 +764,7 @@ function App() {
                 <div className="category-list">
                   {problemOptions.map(cat => {
                     const count = categoryCounts[cat] || 0;
-                    const percent = totalResponses > 0 ? (count / totalResponses) * 100 : 0;
+
                     // Short label for cleaner view
                     let displayLabel = cat.split(" (")[0]; // infra split
 
@@ -874,41 +822,11 @@ function App() {
                     </select>
                   </div>
 
-                  <div className="filter-group">
-                    <span className="filter-label">Status:</span>
-                    <select 
-                      className="select-filter"
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                    >
-                      <option value="All">All Statuses</option>
-                      <option value="Pending">Pending</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Resolved">Resolved</option>
-                    </select>
-                  </div>
-
-                  <div className="filter-group">
-                    <span className="filter-label">Solution:</span>
-                    <select 
-                      className="select-filter"
-                      value={priorityFilter}
-                      onChange={(e) => setPriorityFilter(e.target.value)}
-                    >
-                      <option value="All">All Priorities</option>
-                      <option value="High">High Priority</option>
-                      <option value="Medium">Medium Priority</option>
-                      <option value="Low">Low Priority</option>
-                    </select>
-                  </div>
-
-                  {(categoryFilter !== 'All' || statusFilter !== 'All' || priorityFilter !== 'All' || searchQuery) && (
+                  {(categoryFilter !== 'All' || searchQuery) && (
                     <button 
                       className="reset-filters-btn"
                       onClick={() => {
                         setCategoryFilter('All');
-                        setStatusFilter('All');
-                        setPriorityFilter('All');
                         setSearchQuery('');
                       }}
                     >
@@ -928,22 +846,25 @@ function App() {
                       <div 
                         key={item.id} 
                         className="response-feed-card"
-                        onClick={() => setSelectedFeedback(item)}
+                        style={{ cursor: 'default' }}
                       >
                         <div className="response-header">
                           <div className="tags-row">
-                            <span className={`badge priority-${item.priority.toLowerCase()}`}>{item.priority}</span>
-                            <span className={`badge status-${item.status.toLowerCase().replace(/ /g, '-')}`}>{item.status}</span>
                             {item.problems.map(prob => (
                               <span key={prob} className="badge problem-tag">{prob.split(" (")[0]}</span>
                             ))}
-                            {item.solution && (
-                              <span className="badge" style={{ background: 'rgba(6, 182, 212, 0.12)', color: 'var(--accent-cyan)', border: '1px solid rgba(6,182,212,0.3)' }}>
-                                🛠️ {item.solution.name}
-                              </span>
-                            )}
                           </div>
                           <span className="date-badge">{new Date(item.timestamp).toLocaleDateString()}</span>
+                        </div>
+
+                        {/* Submitter Name & Department Row */}
+                        <div style={{ display: 'flex', gap: '16px', fontSize: '0.8rem', color: '#94a3b8', margin: '4px 0 10px 0', alignItems: 'center' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            👤 <strong>{item.name || 'Anonymous'}</strong>
+                          </span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            🏢 {item.department || 'N/A'}
+                          </span>
                         </div>
 
                         <p className="response-card-description">{item.description}</p>
@@ -953,12 +874,41 @@ function App() {
                             <span><strong>Frequency:</strong> {item.frequency}</span>
                             <span><strong>Target Users:</strong> {item.userGroup}</span>
                           </div>
-                          <span className="view-details-link">
-                            View Console
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteFeedback(item.id);
+                            }}
+                            className="reset-filters-btn"
+                            style={{
+                              background: 'rgba(239, 68, 68, 0.1)',
+                              color: '#ef4444',
+                              border: '1px solid rgba(239, 68, 68, 0.2)',
+                              padding: '6px 12px',
+                              borderRadius: '6px',
+                              fontSize: '0.8rem',
+                              fontWeight: 500,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseOver={(e) => {
+                              e.currentTarget.style.background = '#ef4444';
+                              e.currentTarget.style.color = '#fff';
+                            }}
+                            onMouseOut={(e) => {
+                              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                              e.currentTarget.style.color = '#ef4444';
+                            }}
+                          >
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                              <polyline points="9 18 15 12 9 6"></polyline>
+                              <polyline points="3 6 5 6 21 6"></polyline>
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             </svg>
-                          </span>
+                            Delete Response
+                          </button>
                         </div>
                       </div>
                     ))
@@ -969,187 +919,6 @@ function App() {
           </div>
         )}
       </main>
-
-      {/* Details Modal (with integrated Admin Solution Developer Console) */}
-      {selectedFeedback && (
-        <div className="modal-overlay" onClick={() => setSelectedFeedback(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Problem Details & Solution Console</h3>
-              <button className="close-modal-btn" onClick={() => setSelectedFeedback(null)}>&times;</button>
-            </div>
-            
-            <div className="modal-body">
-              {/* Timestamp and Meta */}
-              <div className="modal-section" style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '12px' }}>
-                <div>
-                  <span className="modal-section-label">Submitted On</span>
-                  <div className="modal-section-content" style={{ fontWeight: 600 }}>{new Date(selectedFeedback.timestamp).toLocaleString()}</div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span className="modal-section-label">Ticket ID</span>
-                  <div className="modal-section-content" style={{ fontFamily: 'monospace', color: 'var(--text-secondary)' }}>{selectedFeedback.id}</div>
-                </div>
-              </div>
-
-              {/* Problem categories */}
-              <div className="modal-section">
-                <span className="modal-section-label">Selected Categories</span>
-                <div className="modal-pills">
-                  {selectedFeedback.problems.map(prob => (
-                    <span key={prob} className="badge problem-tag" style={{ fontSize: '12px', padding: '4px 10px' }}>{prob}</span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Stats Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-                <div className="modal-section">
-                  <span className="modal-section-label">Occurs</span>
-                  <div className="modal-section-content" style={{ fontWeight: 500 }}>{selectedFeedback.frequency}</div>
-                </div>
-                <div className="modal-section">
-                  <span className="modal-section-label">Who is Affected</span>
-                  <div className="modal-section-content" style={{ fontWeight: 500 }}>{selectedFeedback.affected}</div>
-                </div>
-                <div className="modal-section">
-                  <span className="modal-section-label">Can software help?</span>
-                  <div className="modal-section-content" style={{ fontWeight: 500 }}>{selectedFeedback.digitalToolHelp}</div>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="modal-section">
-                <span className="modal-section-label">User Reported Description</span>
-                <div className="modal-desc-box">{selectedFeedback.description}</div>
-              </div>
-
-              {/* Basic Admin controls (priority & generic status) */}
-              <div style={{ display: 'flex', gap: '16px', background: 'rgba(255,255,255,0.01)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                <div className="admin-action-block" style={{ flex: 1 }}>
-                  <label style={{ fontSize: '10px' }}>Ticket Priority</label>
-                  <select 
-                    className="admin-select"
-                    value={selectedFeedback.priority}
-                    onChange={(e) => updateFeedbackPriority(selectedFeedback.id, e.target.value)}
-                    style={{ width: '100%' }}
-                  >
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High</option>
-                  </select>
-                </div>
-                <div className="admin-action-block" style={{ flex: 1 }}>
-                  <label style={{ fontSize: '10px' }}>Ticket Status</label>
-                  <select 
-                    className="admin-select"
-                    value={selectedFeedback.status}
-                    onChange={(e) => updateFeedbackStatus(selectedFeedback.id, e.target.value)}
-                    style={{ width: '100%' }}
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Resolved">Resolved</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Admin Digital Solution Developer Console */}
-              <div className="modal-developer-console">
-                <h4>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                    <polyline points="2 17 12 22 22 17"></polyline>
-                    <polyline points="2 12 12 17 22 12"></polyline>
-                  </svg>
-                  Software Developer Console
-                </h4>
-                <div className="console-grid">
-                  <div className="console-field">
-                    <label>Solution App Name</label>
-                    <input 
-                      type="text" 
-                      className="console-input" 
-                      placeholder="e.g. Forest Trax Mobile Map"
-                      value={solName}
-                      onChange={(e) => setSolName(e.target.value)}
-                    />
-                  </div>
-                  <div className="console-field">
-                    <label>Solution Platform/Type</label>
-                    <select 
-                      className="console-input"
-                      value={solType}
-                      onChange={(e) => setSolType(e.target.value)}
-                    >
-                      <option value="Mobile App">Mobile App</option>
-                      <option value="Website Portal">Website Portal</option>
-                      <option value="Chatbot / Helpdesk">Chatbot / Helpdesk</option>
-                      <option value="Notification / Alert System">Notification / Alert System</option>
-                      <option value="Booking / Scheduling System">Booking / Scheduling System</option>
-                      <option value="QR-based System">QR-based System</option>
-                      <option value="Other">Other System</option>
-                    </select>
-                  </div>
-                  <div className="console-field">
-                    <label>Deployment Status</label>
-                    <select 
-                      className="console-input"
-                      value={solStatus}
-                      onChange={(e) => setSolStatus(e.target.value)}
-                    >
-                      <option value="Ideation">Ideation / Under Review</option>
-                      <option value="In Development">In Development</option>
-                      <option value="Deployed">Deployed & Active</option>
-                    </select>
-                  </div>
-                  <div className="console-field" style={{ justifyContent: 'center', paddingTop: '16px' }}>
-                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                      * Setting status to <strong>Deployed</strong> auto-resolves this feedback ticket.
-                    </span>
-                  </div>
-                  <div className="console-field full-width">
-                    <label>Developer Technical Scope</label>
-                    <textarea 
-                      className="console-input console-textarea"
-                      placeholder="Outline what features this software builds to resolve the user's issue..."
-                      value={solDesc}
-                      onChange={(e) => setSolDesc(e.target.value)}
-                    ></textarea>
-                  </div>
-                </div>
-
-                <div className="console-actions">
-                  {selectedFeedback.solution && (
-                    <button 
-                      className="remove-solution-btn"
-                      onClick={() => handleRemoveSolution(selectedFeedback.id)}
-                    >
-                      Delete Solution
-                    </button>
-                  )}
-                  <button 
-                    className="save-console-btn"
-                    onClick={() => handleSaveSolution(selectedFeedback.id)}
-                  >
-                    Save & Deploy Solution
-                  </button>
-                </div>
-              </div>
-
-              {/* Bottom Actions */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '16px' }}>
-                <button 
-                  className="delete-action-btn"
-                  onClick={() => deleteFeedback(selectedFeedback.id)}
-                >
-                  Delete Ticket
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

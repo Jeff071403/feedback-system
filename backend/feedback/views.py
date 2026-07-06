@@ -1,9 +1,9 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Feedback
-from .serializers import FeedbackSerializer
-from .initial_data import initial_feedbacks
+from feedback.models import Feedback
+from feedback.serializers import FeedbackSerializer
+from feedback.initial_data import initial_feedbacks
 
 class FeedbackViewSet(viewsets.ModelViewSet):
     queryset = Feedback.objects.all()

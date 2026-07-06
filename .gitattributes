@@ -1,0 +1,16 @@
+# Standardize line endings across Windows, Mac, and Linux
+* text=auto
+
+# Explicitly declare text files you want to always be normalized and use LF on checkout
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+.env text eol=lf
+.env.* text eol=lf

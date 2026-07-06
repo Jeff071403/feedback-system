@@ -1,5 +1,7 @@
 initial_feedbacks = [
     {
+        "name": "Arjun Mehta",
+        "department": "Computer Science & Engineering",
         "problems": ["Food / Mess / Canteen"],
         "frequency": "Daily",
         "affected": "Students",
@@ -15,6 +17,8 @@ initial_feedbacks = [
         "solution_description": "An online menu and pre-ordering web portal enabling students to purchase lunch slots in advance and skip the main queues."
     },
     {
+        "name": "Priya Sharma",
+        "department": "Electrical Engineering",
         "problems": ["Infrastructure (classroom, lab, hostel, washroom, etc.)"],
         "frequency": "Daily",
         "affected": "Everyone",
@@ -30,6 +34,8 @@ initial_feedbacks = [
         "solution_description": "Custom scan codes placed in all public restrooms that trigger high-priority maintenance requests directly to cleaning teams."
     },
     {
+        "name": "Rohan Das",
+        "department": "Mechanical Engineering",
         "problems": ["Internet / Wi-Fi"],
         "frequency": "Weekly",
         "affected": "Students",
@@ -45,6 +51,8 @@ initial_feedbacks = [
         "solution_description": "A web dashboard integrated with the library APs showing real-time load and alerting students on high latency zones."
     },
     {
+        "name": "Dr. Amit Verma",
+        "department": "Physics",
         "problems": ["Administration / Paperwork"],
         "frequency": "Occasionally",
         "affected": "Faculty",
@@ -60,6 +68,8 @@ initial_feedbacks = [
         "solution_description": None
     },
     {
+        "name": "Sneha Reddy",
+        "department": "Information Technology",
         "problems": ["Safety / Security"],
         "frequency": "Daily",
         "affected": "Everyone",
@@ -75,6 +85,8 @@ initial_feedbacks = [
         "solution_description": "An offline companion map app showing lighted trails, safety escort requests, and hazards (such as broken streetlights) for student navigation."
     },
     {
+        "name": "Vikram Malhotra",
+        "department": "Business School",
         "problems": ["Mental Health / Wellbeing"],
         "frequency": "Occasionally",
         "affected": "Students",
@@ -90,6 +102,8 @@ initial_feedbacks = [
         "solution_description": "An anonymous booking system that provides encrypted slot selection for counseling appointments without sharing personal data."
     },
     {
+        "name": "Prof. Sarah John",
+        "department": "Chemistry",
         "problems": ["Infrastructure (classroom, lab, hostel, washroom, etc.)", "Faculty / Teaching"],
         "frequency": "Weekly",
         "affected": "Faculty",
@@ -105,6 +119,8 @@ initial_feedbacks = [
         "solution_description": None
     },
     {
+        "name": "Anonymous",
+        "department": "Civil Engineering",
         "problems": ["Faculty / Teaching"],
         "frequency": "Rarely / One-time",
         "affected": "Students",
