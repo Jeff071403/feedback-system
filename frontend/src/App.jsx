@@ -116,6 +116,8 @@ function App() {
   // Admin filter & selection states
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [deletingId, setDeletingId] = useState(null);
+  const [deleteTimeoutId, setDeleteTimeoutId] = useState(null);
 
   // Form submit handler
   const handleSubmit = (e) => {
@@ -407,7 +409,13 @@ function App() {
   };
 
   const deleteFeedback = (id) => {
-    if (window.confirm("Are you sure you want to delete this response?")) {
+    if (deletingId === id) {
+      if (deleteTimeoutId) {
+        clearTimeout(deleteTimeoutId);
+        setDeleteTimeoutId(null);
+      }
+      setDeletingId(null);
+
       const dbId = typeof id === 'string' && id.startsWith('fb-') ? id.replace('fb-', '') : id;
       fetch(`http://localhost:8000/api/feedbacks/${dbId}/`, {
         method: 'DELETE'
@@ -417,6 +425,16 @@ function App() {
           setFeedbacks(feedbacks.filter(item => item.id !== id));
         })
         .catch(err => console.error("Error deleting feedback:", err));
+    } else {
+      // Clear existing timeout if clicking a different item before timeout
+      if (deleteTimeoutId) {
+        clearTimeout(deleteTimeoutId);
+      }
+      setDeletingId(id);
+      const tId = setTimeout(() => {
+        setDeletingId(null);
+      }, 3000);
+      setDeleteTimeoutId(tId);
     }
   };
 
@@ -1138,9 +1156,9 @@ function App() {
                               }}
                               className="reset-filters-btn"
                               style={{
-                                background: 'rgba(239, 68, 68, 0.1)',
+                                background: deletingId === item.id ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)',
                                 color: '#ef4444',
-                                border: '1px solid rgba(239, 68, 68, 0.2)',
+                                border: deletingId === item.id ? '1px solid #ef4444' : '1px solid rgba(239, 68, 68, 0.2)',
                                 padding: '6px 12px',
                                 borderRadius: '6px',
                                 fontSize: '0.8rem',
@@ -1156,15 +1174,20 @@ function App() {
                                 e.currentTarget.style.color = '#fff';
                               }}
                               onMouseOut={(e) => {
-                                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                                e.currentTarget.style.color = '#ef4444';
+                                if (deletingId === item.id) {
+                                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                                  e.currentTarget.style.color = '#ef4444';
+                                } else {
+                                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                                  e.currentTarget.style.color = '#ef4444';
+                                }
                               }}
                             >
                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                               </svg>
-                              Delete Response
+                              {deletingId === item.id ? 'Confirm Delete?' : 'Delete Response'}
                             </button>
                           </div>
                         </div>
