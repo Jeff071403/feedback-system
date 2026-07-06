@@ -199,112 +199,125 @@ function App() {
             font-family: 'Outfit', 'Segoe UI', Arial, sans-serif;
             color: #1e293b;
             margin: 0;
-            padding: 40px;
-            line-height: 1.6;
+            padding: 24px;
+            font-size: 13px;
+            line-height: 1.4;
             background-color: #fff;
           }
           .header {
-            border-bottom: 3px solid #6366f1;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
+            border-bottom: 2px solid #6366f1;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
           }
           .header-left h1 {
             margin: 0;
-            font-size: 26px;
+            font-size: 20px;
             font-weight: 700;
             color: #0f172a;
             letter-spacing: -0.5px;
           }
           .header-left p {
-            margin: 6px 0 0 0;
-            font-size: 14px;
+            margin: 4px 0 0 0;
+            font-size: 11px;
             color: #64748b;
-          }
-          .header-right {
-            text-align: right;
           }
           .ticket-badge {
             background-color: #f1f5f9;
             border: 1px solid #cbd5e1;
             color: #334155;
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: 4px 8px;
+            border-radius: 6px;
             font-family: monospace;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
           }
           .meta-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 10px;
             background: #f8fafc;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 35px;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
             border: 1px solid #e2e8f0;
           }
           .meta-item {
-            font-size: 14px;
+            font-size: 12px;
             color: #475569;
           }
           .meta-item strong {
             color: #0f172a;
           }
-          .qa-card {
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 20px;
-            margin-bottom: 25px;
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
           }
-          .qa-card:last-child {
-            border-bottom: none;
+          th, td {
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: top;
+            font-size: 12px;
           }
-          .question {
-            font-size: 15px;
+          th {
+            background-color: #f8fafc;
+            color: #475569;
             font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
           }
           .q-num {
             background: #6366f1;
             color: #fff;
-            width: 22px;
-            height: 22px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 9px;
             font-weight: 700;
+            margin-right: 6px;
           }
-          .answer {
-            font-size: 14px;
+          .answer-cell {
             color: #334155;
+            font-weight: 500;
+          }
+          .desc-section {
             background: #fafafa;
-            padding: 12px 18px;
-            border-left: 4px solid #6366f1;
-            border-radius: 0 8px 8px 0;
+            border-left: 3px solid #6366f1;
+            padding: 10px 14px;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 16px;
+          }
+          .desc-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 4px;
+          }
+          .desc-content {
+            font-size: 12px;
+            color: #334155;
             white-space: pre-wrap;
           }
           .footer {
-            margin-top: 60px;
+            margin-top: 24px;
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             color: #94a3b8;
             border-top: 1px solid #f1f5f9;
-            padding-top: 20px;
+            padding-top: 10px;
           }
           @media print {
             body {
-              padding: 20px;
-              background-color: #fff;
+              padding: 10px;
             }
-            .meta-grid {
+            .meta-grid, th {
               background: #f8fafc !important;
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
@@ -315,7 +328,7 @@ function App() {
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
-            .answer {
+            .desc-section {
               background: #fafafa !important;
               border-left-color: #6366f1 !important;
               -webkit-print-color-adjust: exact;
@@ -327,8 +340,8 @@ function App() {
       <body>
         <div class="header">
           <div class="header-left">
-            <h1>Campus Feedback Portal</h1>
-            <p>Voice Your Problems &middot; Response Detail Report</p>
+            <h1>Campus Feedback Report</h1>
+            <p>Individual Submitter Q&A Summary</p>
           </div>
           <div class="header-right">
             <div class="ticket-badge">${item.id}</div>
@@ -339,42 +352,47 @@ function App() {
           <div class="meta-item"><strong>Submitter Name:</strong> ${item.name || 'Anonymous'}</div>
           <div class="meta-item"><strong>Department/Branch:</strong> ${item.department || 'N/A'}</div>
           <div class="meta-item"><strong>Submission Date:</strong> ${new Date(item.timestamp).toLocaleString()}</div>
-          <div class="meta-item"><strong>Document Type:</strong> Individual Response Log</div>
+          <div class="meta-item"><strong>Document Type:</strong> One-Page Report</div>
         </div>
 
-        <div class="qa-card">
-          <div class="question"><span class="q-num">1</span> What type of problem is this?</div>
-          <div class="answer">${formattedProblems || 'None selected'}</div>
-        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 50%;">Question</th>
+              <th style="width: 50%;">Answer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="q-num">1</span> What type of problem is this?</td>
+              <td class="answer-cell">${formattedProblems || 'None selected'}</td>
+            </tr>
+            <tr>
+              <td><span class="q-num">2</span> How often does this problem occur?</td>
+              <td class="answer-cell">${item.frequency}</td>
+            </tr>
+            <tr>
+              <td><span class="q-num">3</span> Who is most affected by it?</td>
+              <td class="answer-cell">${item.affected}</td>
+            </tr>
+            <tr>
+              <td><span class="q-num">4</span> Could a digital tool help solve it?</td>
+              <td class="answer-cell">${item.digitalToolHelp}</td>
+            </tr>
+            <tr>
+              <td><span class="q-num">5</span> What kind of digital tool would help?</td>
+              <td class="answer-cell">${formattedToolTypes || 'None selected'}</td>
+            </tr>
+            <tr>
+              <td><span class="q-num">6</span> Who would use this solution?</td>
+              <td class="answer-cell">${item.userGroup}</td>
+            </tr>
+          </tbody>
+        </table>
 
-        <div class="qa-card">
-          <div class="question"><span class="q-num">2</span> How often does this problem occur?</div>
-          <div class="answer">${item.frequency}</div>
-        </div>
-
-        <div class="qa-card">
-          <div class="question"><span class="q-num">3</span> Who is most affected by it?</div>
-          <div class="answer">${item.affected}</div>
-        </div>
-
-        <div class="qa-card">
-          <div class="question"><span class="q-num">4</span> Can a software program, app, or website help solve it?</div>
-          <div class="answer">${item.digitalToolHelp}</div>
-        </div>
-
-        <div class="qa-card">
-          <div class="question"><span class="q-num">5</span> What kind of digital tool would help?</div>
-          <div class="answer">${formattedToolTypes || 'None selected'}</div>
-        </div>
-
-        <div class="qa-card">
-          <div class="question"><span class="q-num">6</span> Who would use this solution?</div>
-          <div class="answer">${item.userGroup}</div>
-        </div>
-
-        <div class="qa-card">
-          <div class="question"><span class="q-num">7</span> Description of the Problem</div>
-          <div class="answer">${item.description}</div>
+        <div class="desc-section">
+          <div class="desc-title">Question 7: Description of the Problem</div>
+          <div class="desc-content">${item.description}</div>
         </div>
 
         <div class="footer">
