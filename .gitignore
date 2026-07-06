@@ -18,8 +18,13 @@ frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
 
+# Dependencies
+node_modules/
+
 # IDEs/System
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
+
+node_modules/

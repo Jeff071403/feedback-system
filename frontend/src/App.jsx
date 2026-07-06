@@ -494,27 +494,36 @@ function App() {
         alignItems: 'center',
         justifyContent: 'center',
         height: '100vh',
-        background: 'radial-gradient(circle at top right, #1e1e2f 0%, #0d0d15 100%)',
-        color: '#fff',
-        fontFamily: "'Outfit', sans-serif"
+        background: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.06), transparent), #f4f6fb',
+        color: '#1e293b',
+        fontFamily: "'Plus Jakarta Sans', 'Outfit', sans-serif"
       }}>
-        <div className="spinner" style={{
-          width: '50px',
-          height: '50px',
-          border: '3px solid rgba(255,255,255,0.1)',
-          borderTop: '3px solid #6366f1',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-          marginBottom: '20px'
-        }} />
+        <div style={{
+          width: '56px',
+          height: '56px',
+          borderRadius: '16px',
+          background: 'linear-gradient(135deg, #6366f1, #a78bfa)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: '24px',
+          boxShadow: '0 8px 24px rgba(99, 102, 241, 0.2)',
+          animation: 'pulse 2s ease-in-out infinite'
+        }}>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
         <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+          @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2); }
+            50% { transform: scale(1.05); box-shadow: 0 12px 32px rgba(99, 102, 241, 0.25); }
           }
         `}</style>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 600, letterSpacing: '0.5px' }}>Loading Feedback Hub...</h2>
-        <p style={{ color: '#94a3b8', marginTop: '8px' }}>Connecting to PostgreSQL database</p>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.3px', marginBottom: '6px' }}>Campus Feedback Portal</h2>
+        <p style={{ color: '#64748b', marginTop: '4px', fontSize: '0.9rem' }}>Connecting to university database...</p>
       </div>
     );
   }
@@ -537,45 +546,51 @@ function App() {
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
-        background: 'radial-gradient(circle at top right, #1e1e2f 0%, #0d0d15 100%)',
-        fontFamily: "'Outfit', sans-serif",
+        background: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.06), transparent), #f4f6fb',
+        fontFamily: "'Plus Jakarta Sans', 'Outfit', sans-serif",
         padding: '20px'
       }}>
         <form onSubmit={handleAdminLogin} style={{
-          background: 'rgba(255, 255, 255, 0.03)',
-          backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          background: 'rgba(255, 255, 255, 0.92)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(0, 0, 0, 0.06)',
           borderRadius: '24px',
-          padding: '40px',
+          padding: '44px 40px',
           width: '100%',
-          maxWidth: '400px',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+          maxWidth: '420px',
+          boxShadow: '0 24px 48px rgba(0,0,0,0.08), 0 0 40px rgba(99, 102, 241, 0.04)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          textAlign: 'center'
+          textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(90deg, #6366f1, #a78bfa, #14b8a6)' }}></div>
           <div className="login-icon" style={{
-            width: '60px',
-            height: '60px',
-            borderRadius: '16px',
-            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            width: '64px',
+            height: '64px',
+            borderRadius: '18px',
+            background: 'linear-gradient(135deg, #6366f1, #a78bfa)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginBottom: '20px',
-            boxShadow: '0 8px 16px rgba(99, 102, 241, 0.3)'
+            marginBottom: '24px',
+            boxShadow: '0 8px 24px rgba(99, 102, 241, 0.2)',
+            position: 'relative'
           }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            <div style={{ position: 'absolute', inset: 0, borderRadius: '18px', background: 'linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.2))' }}></div>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5"></path>
+              <path d="M2 12l10 5 10-5"></path>
             </svg>
           </div>
-          <h2 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 600, marginBottom: '8px' }}>Admin Portal</h2>
-          <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '24px' }}>Please enter your credentials to access the dashboard.</p>
+          <h2 style={{ color: '#1e293b', fontSize: '1.5rem', fontWeight: 700, marginBottom: '6px', letterSpacing: '-0.3px' }}>Admin Dashboard</h2>
+          <p style={{ color: '#64748b', fontSize: '0.88rem', marginBottom: '28px', lineHeight: 1.5 }}>Authorized personnel only. Enter credentials to access the analytics dashboard.</p>
           
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', marginBottom: '20px' }}>
-            <label htmlFor="admin-pass" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#94a3b8' }}>Password</label>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', marginBottom: '22px' }}>
+            <label htmlFor="admin-pass" style={{ fontSize: '0.82rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Password</label>
             <input 
               type="password" 
               id="admin-pass"
@@ -584,20 +599,23 @@ function App() {
               placeholder="••••••••"
               style={{
                 width: '100%',
-                padding: '12px 16px',
-                background: 'rgba(15, 23, 42, 0.6)',
-                border: loginError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '10px',
-                color: '#fff',
+                padding: '13px 16px',
+                background: '#fff',
+                border: loginError ? '1px solid #ef4444' : '1px solid rgba(0, 0, 0, 0.08)',
+                borderRadius: '12px',
+                color: '#1e293b',
                 outline: 'none',
                 fontSize: '1rem',
-                transition: 'border-color 0.2s'
+                fontFamily: "'DM Sans', sans-serif",
+                transition: 'border-color 0.25s, box-shadow 0.25s'
               }}
+              onFocus={(e) => { if (!loginError) { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.08)'; }}}
+              onBlur={(e) => { e.target.style.borderColor = loginError ? '#ef4444' : 'rgba(0, 0, 0, 0.08)'; e.target.style.boxShadow = 'none'; }}
               autoFocus
             />
             {loginError && (
-              <span style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <span style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <circle cx="12" cy="12" r="10"></circle>
                   <line x1="12" y1="8" x2="12" y2="12"></line>
                   <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -609,22 +627,26 @@ function App() {
           
           <button type="submit" style={{
             width: '100%',
-            padding: '12px',
-            background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
+            padding: '13px',
+            background: 'linear-gradient(135deg, #6366f1, #a78bfa)',
             color: '#fff',
             border: 'none',
-            borderRadius: '10px',
-            fontSize: '1rem',
+            borderRadius: '12px',
+            fontSize: '0.95rem',
             fontWeight: 600,
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
             cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)',
-            transition: 'opacity 0.2s'
+            boxShadow: '0 4px 16px rgba(99, 102, 241, 0.2)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            position: 'relative',
+            overflow: 'hidden'
           }}
-          onMouseOver={(e) => e.currentTarget.style.opacity = 0.9}
-          onMouseOut={(e) => e.currentTarget.style.opacity = 1}
+          onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 24px rgba(99, 102, 241, 0.25)'; }}
+          onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(99, 102, 241, 0.2)'; }}
           >
-            Unlock Dashboard
+            Access Dashboard
           </button>
+          <p style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '20px' }}>Protected by institutional security</p>
         </form>
       </div>
     );
@@ -635,10 +657,16 @@ function App() {
       {/* App Header */}
       <header className="app-header">
         <div className="logo-section">
-          <div className="logo-icon">C</div>
+          <div className="logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5"></path>
+              <path d="M2 12l10 5 10-5"></path>
+            </svg>
+          </div>
           <div className="logo-text">
-            <h1>Campus Feedback & Solution Hub</h1>
-            <p>Voice Your Problems. We Develop Digital Solutions.</p>
+            <h1>Campus Feedback Portal</h1>
+            <p>Institutional Feedback & Digital Solution System</p>
           </div>
         </div>
 
@@ -658,7 +686,7 @@ function App() {
             <button 
               className="nav-tab active"
               onClick={() => setIsAdminAuthenticated(false)}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ef4444' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
             >
               🔒 Log Out
             </button>
@@ -694,32 +722,32 @@ function App() {
               /* User Questionnaire Page */
               <div className="questionnaire-view page-fade-in">
                 <div className="form-hero">
-                  <h2>Campus Voice Portal</h2>
-                  <p>Report physical, academic, or administrative friction. We develop software to solve them.</p>
+                  <h2>Share Your Campus Experience</h2>
+                  <p>Help us improve your college experience. Report infrastructure, academic, or administrative issues — and suggest digital solutions that can make a difference.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="questionnaire-card">
                   {/* Submitter Profile Details */}
                   <div className="question-group profile-section" style={{
                     padding: '24px',
-                    background: 'rgba(255, 255, 255, 0.02)',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    background: 'rgba(99, 102, 241, 0.03)',
+                    border: '1px solid rgba(99, 102, 241, 0.08)',
                     borderRadius: '16px',
                     marginBottom: '32px',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '16px'
                   }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5">
                         <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
                       </svg>
-                      Submitter Profile
+                      Your Details
                     </h3>
                     <div className="profile-inputs-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <label htmlFor="submitter-name" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#94a3b8' }}>Full Name (Optional)</label>
+                        <label htmlFor="submitter-name" style={{ fontSize: '0.82rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.3px' }}>Full Name (Optional)</label>
                         <input 
                           type="text" 
                           id="submitter-name"
@@ -728,17 +756,19 @@ function App() {
                           placeholder="Anonymous"
                           style={{
                             padding: '12px 16px',
-                            background: 'rgba(15, 23, 42, 0.6)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            background: '#fff',
+                            border: '1px solid rgba(0, 0, 0, 0.08)',
                             borderRadius: '10px',
-                            color: '#fff',
+                            color: '#1e293b',
                             outline: 'none',
-                            fontSize: '0.9rem'
+                            fontSize: '0.9rem',
+                            fontFamily: "'DM Sans', sans-serif",
+                            transition: 'border-color 0.25s'
                           }}
                         />
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <label htmlFor="submitter-dept" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#94a3b8' }}>Department / Branch</label>
+                        <label htmlFor="submitter-dept" style={{ fontSize: '0.82rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.3px' }}>Department / Branch</label>
                         <input 
                           type="text"
                           id="submitter-dept"
@@ -747,12 +777,14 @@ function App() {
                           placeholder="e.g. Computer Science & Engineering"
                           style={{
                             padding: '12px 16px',
-                            background: 'rgba(15, 23, 42, 0.6)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            background: '#fff',
+                            border: '1px solid rgba(0, 0, 0, 0.08)',
                             borderRadius: '10px',
-                            color: '#fff',
+                            color: '#1e293b',
                             outline: 'none',
-                            fontSize: '0.9rem'
+                            fontSize: '0.9rem',
+                            fontFamily: "'DM Sans', sans-serif",
+                            transition: 'border-color 0.25s'
                           }}
                           required
                         />
@@ -934,7 +966,7 @@ function App() {
             <div className="admin-section-hero">
               <div>
                 <h2>Admin Analytics Dashboard</h2>
-                <p>Review campus feedback, prioritise issues, and launch digital solutions to resolve them.</p>
+                <p>Review institutional feedback, prioritize campus issues, and deploy digital solutions.</p>
               </div>
             </div>
             {/* Top Metrics Row */}
