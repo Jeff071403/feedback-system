@@ -3,18 +3,7 @@ import React, { useState, useEffect } from 'react';
 
 
 
-// Option lists for the questionnaire
-const departmentOptions = [
-  "Computer Science & Engineering",
-  "Information Technology",
-  "Electrical Engineering",
-  "Mechanical Engineering",
-  "Civil Engineering",
-  "Physics",
-  "Chemistry",
-  "Business School",
-  "Other"
-];
+
 
 const problemOptions = [
   "Infrastructure (classroom, lab, hostel, washroom, etc.)",
@@ -732,10 +721,12 @@ function App() {
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                         <label htmlFor="submitter-dept" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#94a3b8' }}>Department / Branch</label>
-                        <select 
+                        <input 
+                          type="text"
                           id="submitter-dept"
                           value={submitterDept}
                           onChange={(e) => setSubmitterDept(e.target.value)}
+                          placeholder="e.g. Computer Science & Engineering"
                           style={{
                             padding: '12px 16px',
                             background: 'rgba(15, 23, 42, 0.6)',
@@ -743,16 +734,10 @@ function App() {
                             borderRadius: '10px',
                             color: '#fff',
                             outline: 'none',
-                            fontSize: '0.9rem',
-                            cursor: 'pointer'
+                            fontSize: '0.9rem'
                           }}
                           required
-                        >
-                          <option value="" disabled style={{ background: '#1e1e2f', color: '#64748b' }}>Select your department</option>
-                          {departmentOptions.map(dept => (
-                            <option key={dept} value={dept} style={{ background: '#1e1e2f', color: '#fff' }}>{dept}</option>
-                          ))}
-                        </select>
+                        />
                       </div>
                     </div>
                   </div>
