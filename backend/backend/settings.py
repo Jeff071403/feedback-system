@@ -40,13 +40,20 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-xulu7em@_7rer(%()e_==c3=h%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't')
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://feedback-system-7ocst4g3a-jeffersonsamuel003-3850s-projects.vercel.app",
+]
 # ALLOWED_HOSTS configuration
-allowed_hosts_env = os.getenv('ALLOWED_HOSTS')
+allowed_hosts_env = os.getenv("ALLOWED_HOSTS")
+
 if allowed_hosts_env:
-    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(",") if host.strip()]
 else:
-    # Default to localhost/127.0.0.1 for local dev, empty/safe in production unless specified
-    ALLOWED_HOSTS = ['*'] if DEBUG else []
+    ALLOWED_HOSTS = [
+        "feedback-system-e7u4.onrender.com",
+        "localhost",
+        "127.0.0.1",
+    ]
 
 
 # Application definition
@@ -171,12 +178,17 @@ STORAGES = {
 }
 
 # CORS Configuration
-# Restrict backend CORS access in production to FRONTEND_URL or allow all during local debug mode
-frontend_url_env = os.getenv('FRONTEND_URL')
-if frontend_url_env:
-    CORS_ALLOWED_ORIGINS = [url.strip() for url in frontend_url_env.split(',') if url.strip()]
-    CORS_ALLOW_ALL_ORIGINS = False
-else:
-    CORS_ALLOW_ALL_ORIGINS = DEBUG
+frontend_url_env = os.getenv("FRONTEND_URL")
 
+if frontend_url_env:
+    CORS_ALLOWED_ORIGINS = [
+        url.strip() for url in frontend_url_env.split(",") if url.strip()
+    ]
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "https://feedback-system-egutizkjj-jeffersonsamuel003-3850s-projects.vercel.app",
+        "http://localhost:5173",
+    ]
+
+CORS_ALLOW_CREDENTIALS = True
 
