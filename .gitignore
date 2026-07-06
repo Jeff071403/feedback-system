@@ -4,6 +4,7 @@
 **/*.pyc
 **/db.sqlite3
 **/.env
+backend/staticfiles/
 
 
 # Node / React

@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-
-
-
-
-
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const problemOptions = [
   "Infrastructure (classroom, lab, hostel, washroom, etc.)",
   "Internet / Wi-Fi",
@@ -69,7 +65,7 @@ function App() {
 
   // Load feedbacks from database on mount
   useEffect(() => {
-    fetch('http://localhost:8000/api/feedbacks/')
+    fetch(`${API_BASE_URL}/api/feedbacks/`)
       .then(res => {
         if (!res.ok) throw new Error("Could not fetch feedbacks");
         return res.json();
@@ -126,7 +122,7 @@ function App() {
       status: "Pending"
     };
 
-    fetch('http://localhost:8000/api/feedbacks/', {
+    fetch(`${API_BASE_URL}/api/feedbacks/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -424,7 +420,7 @@ function App() {
       setDeletingId(null);
 
       const dbId = typeof id === 'string' && id.startsWith('fb-') ? id.replace('fb-', '') : id;
-      fetch(`http://localhost:8000/api/feedbacks/${dbId}/`, {
+      fetch(`${API_BASE_URL}/api/feedbacks/${dbId}/`, {
         method: 'DELETE'
       })
         .then(res => {
@@ -447,7 +443,7 @@ function App() {
 
   const resetDatabase = () => {
     if (window.confirm("Reset dashboard data back to initial mock responses?")) {
-      fetch('http://localhost:8000/api/feedbacks/reset/', {
+      fetch(`${API_BASE_URL}/api/feedbacks/reset/`, {
         method: 'POST',
       })
         .then(res => {
