@@ -11,6 +11,8 @@ class Feedback(models.Model):
     priority = models.CharField(max_length=20, default='Low')
     status = models.CharField(max_length=20, default='Pending')
     timestamp = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=100, default='Anonymous')
+    department = models.CharField(max_length=100, default='N/A')
 
     # Linked Digital Solution fields
     solution_name = models.CharField(max_length=255, null=True, blank=True)

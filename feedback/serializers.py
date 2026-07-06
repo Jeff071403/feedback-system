@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Feedback
+from feedback.models import Feedback
 
 class FeedbackSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
@@ -13,7 +13,8 @@ class FeedbackSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'timestamp', 'problems', 'frequency', 'affected',
             'digitalToolHelp', 'digitalToolTypes', 'userGroup',
-            'description', 'priority', 'status', 'solution'
+            'description', 'priority', 'status', 'solution',
+            'name', 'department'
         ]
 
     def get_id(self, obj):
