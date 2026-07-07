@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import mccLogo from './assets/mcc logo .png';
+import html2pdf from 'html2pdf.js';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -120,17 +121,7 @@ function Admin() {
   };
 
   const downloadResponsePDF = (item) => {
-    if (window.html2pdf) {
-      generatePDFDirectly(item);
-    } else {
-      // Load html2pdf dynamically from CDN
-      const script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-      script.onload = () => {
-        generatePDFDirectly(item);
-      };
-      document.body.appendChild(script);
-    }
+    generatePDFDirectly(item);
   };
 
   const generatePDFDirectly = (item) => {
@@ -224,7 +215,7 @@ function Admin() {
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    window.html2pdf()
+    html2pdf()
       .from(tempDiv.firstChild)
       .set(pdfOptions)
       .save()
