@@ -97,6 +97,7 @@ function App() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [adminClickCount, setAdminClickCount] = useState(0);
 
   // Admin filter & selection states
   const [categoryFilter, setCategoryFilter] = useState('All');
@@ -652,7 +653,15 @@ function App() {
     <div className="app-container">
       {/* App Header */}
       <header className="app-header">
-        <div className="logo-section">
+        <div 
+          className="logo-section" 
+          onClick={() => {
+            if (view === 'user') {
+              setAdminClickCount(prev => prev + 1);
+            }
+          }}
+          style={{ cursor: view === 'user' ? 'pointer' : 'default', userSelect: 'none' }}
+        >
           <div className="logo-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
               <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
@@ -666,7 +675,7 @@ function App() {
           </div>
         </div>
 
-        {currentPath === '/admin' && isAdminAuthenticated && (
+        {currentPath === '/admin' && isAdminAuthenticated ? (
           <nav className="nav-tabs">
             <button 
               className="nav-tab"
@@ -687,6 +696,18 @@ function App() {
               🔒 Log Out
             </button>
           </nav>
+        ) : (
+          view === 'user' && adminClickCount >= 5 && (
+            <nav className="nav-tabs">
+              <button 
+                className="nav-tab active"
+                onClick={() => { window.location.href = '/admin'; }}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+              >
+                🔒 Admin Portal
+              </button>
+            </nav>
+          )
         )}
       </header>
 
