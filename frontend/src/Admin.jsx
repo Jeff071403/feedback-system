@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import mccLogo from './assets/mcc logo .png';
-import mccLogoBig from './assets/mcc-logo-big.png';
 import html2pdf from 'html2pdf.js';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -140,16 +139,16 @@ function Admin() {
     tempDiv.innerHTML = `
       <div style="font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #334155; line-height: 1.5; font-size: 13px; width: 790px; box-sizing: border-box; padding: 24px; background: #ffffff;">
         <!-- Header -->
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; background-color: #eef2ff; border-radius: 18px; margin-bottom: 24px; border: 1px solid #dbeafe;">
-          <div style="display: flex; align-items: center; gap: 14px;">
-            <img src="${mccLogoBig}" alt="MCC Logo" style="width: 78px; height: auto; object-fit: contain;" />
-            <div style="display: flex; flex-direction: column; font-family: 'Times New Roman', Times, serif; color: #0f2d59;">
+        <div style="display: flex; justify-content: center; align-items: center; padding: 18px 20px; background-color: #eef2ff; border-radius: 18px; margin-bottom: 24px; border: 1px solid #dbeafe; position: relative;">
+          <div style="display: flex; align-items: center; gap: 14px; justify-content: center; text-align: center;">
+            <img src="${mccLogo}" alt="MCC Logo" style="width: 78px; height: auto; object-fit: contain;" />
+            <div style="display: flex; flex-direction: column; font-family: 'Times New Roman', Times, serif; color: #0f2d59; align-items: center;">
               <span style="font-size: 20px; font-weight: 700; line-height: 1.1;">Madras Christian College</span>
               <span style="font-size: 14px; color: #475569; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; margin-top: 4px;">Review Report</span>
               <span style="font-size: 11px; color: #475569; margin-top: 6px;">Individual Submitter Q&amp;A Summary</span>
             </div>
           </div>
-          <div style="background-color: #ffffff; border: 1px solid #cbd5e1; color: #0f2d59; padding: 6px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap;">
+          <div style="position: absolute; right: 18px; background-color: #ffffff; border: 1px solid #cbd5e1; color: #0f2d59; padding: 6px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap;">
             ${item.id}
           </div>
         </div>
