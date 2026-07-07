@@ -29,6 +29,7 @@ function Admin() {
   const [searchQuery, setSearchQuery] = useState('');
   const [deletingId, setDeletingId] = useState(null);
   const [deleteTimeoutId, setDeleteTimeoutId] = useState(null);
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
 
   // Security check on mount
   useEffect(() => {
@@ -132,145 +133,164 @@ function Admin() {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>MCC Feedback Response - ${item.id}</title>
+        <title>Review Response - ${item.id}</title>
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
           body {
-            font-family: 'Outfit', 'Segoe UI', Arial, sans-serif;
-            color: #1e293b;
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #334155;
             margin: 0;
             padding: 24px;
             font-size: 13px;
-            line-height: 1.4;
+            line-height: 1.5;
             background-color: #fff;
           }
           .header {
-            border-bottom: 2px solid #6366f1;
-            padding-bottom: 10px;
-            margin-bottom: 16px;
+            border-bottom: 2px solid #0f2d59;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
           }
           .header-left h1 {
             margin: 0;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
-            color: #0f172a;
+            color: #0f2d59;
             letter-spacing: -0.5px;
           }
           .header-left p {
             margin: 4px 0 0 0;
             font-size: 11px;
             color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 500;
           }
           .ticket-badge {
-            background-color: #f1f5f9;
+            background-color: #f8fafc;
             border: 1px solid #cbd5e1;
-            color: #334155;
-            padding: 4px 8px;
+            color: #0f2d59;
+            padding: 6px 12px;
             border-radius: 6px;
             font-family: monospace;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.5px;
           }
           .meta-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 12px;
             background: #f8fafc;
-            padding: 12px;
+            padding: 14px;
             border-radius: 8px;
-            margin-bottom: 16px;
-            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+            border: 1px solid #cbd5e1;
           }
           .meta-item {
             font-size: 12px;
             color: #475569;
           }
           .meta-item strong {
-            color: #0f172a;
+            color: #0f2d59;
           }
           table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
           }
           th, td {
             text-align: left;
-            padding: 8px 10px;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 10px 12px;
+            border-bottom: 1px solid #cbd5e1;
             vertical-align: top;
             font-size: 12px;
           }
           th {
-            background-color: #f8fafc;
-            color: #475569;
-            font-weight: 600;
+            background-color: #f1f5f9;
+            color: #0f2d59;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
+            font-size: 11px;
           }
           .q-num {
-            background: #6366f1;
+            background: #0f2d59;
             color: #fff;
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 9px;
+            font-size: 10px;
             font-weight: 700;
-            margin-right: 6px;
+            margin-right: 8px;
           }
           .answer-cell {
-            color: #334155;
+            color: #1e293b;
             font-weight: 500;
           }
           .desc-section {
-            background: #fafafa;
-            border-left: 3px solid #6366f1;
-            padding: 10px 14px;
-            border-radius: 0 6px 6px 0;
-            margin-bottom: 16px;
+            background: #f8fafc;
+            border-left: 4px solid #0f2d59;
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+            border-top: 1px solid #cbd5e1;
+            border-right: 1px solid #cbd5e1;
+            border-bottom: 1px solid #cbd5e1;
           }
           .desc-title {
             font-size: 12px;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 4px;
+            font-weight: 700;
+            color: #0f2d59;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
           }
           .desc-content {
             font-size: 12px;
-            color: #334155;
+            color: #1e293b;
             white-space: pre-wrap;
+            line-height: 1.5;
           }
           .footer {
-            margin-top: 24px;
+            margin-top: 32px;
             text-align: center;
-            font-size: 11px;
-            color: #94a3b8;
-            border-top: 1px solid #f1f5f9;
-            padding-top: 10px;
+            font-size: 10px;
+            color: #64748b;
+            border-top: 1px solid #cbd5e1;
+            padding-top: 12px;
           }
           @media print {
             body {
               padding: 10px;
             }
-            .meta-grid, th {
+            .meta-grid {
               background: #f8fafc !important;
+              border-color: #cbd5e1 !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+            th {
+              background: #f1f5f9 !important;
+              color: #0f2d59 !important;
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
             .q-num {
-              background: #6366f1 !important;
+              background: #0f2d59 !important;
               color: #fff !important;
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
             .desc-section {
-              background: #fafafa !important;
-              border-left-color: #6366f1 !important;
+              background: #f8fafc !important;
+              border-color: #cbd5e1 !important;
+              border-left-color: #0f2d59 !important;
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
@@ -280,7 +300,7 @@ function Admin() {
       <body>
         <div class="header">
           <div class="header-left">
-            <h1>MCC Feedback Report</h1>
+            <h1>Review Report</h1>
             <p>Individual Submitter Q&A Summary</p>
           </div>
           <div class="header-right">
@@ -336,7 +356,7 @@ function Admin() {
         </div>
 
         <div class="footer">
-          Generated automatically by MCC Feedback & Digital Solutions System on ${new Date().toLocaleDateString()}
+          Generated automatically by Review Hub Solutions System on ${new Date().toLocaleDateString()}
         </div>
 
         <script>
@@ -386,7 +406,7 @@ function Admin() {
         }}>
           <img src={mccLogo} alt="MCC Logo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
         </div>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.3px', marginBottom: '6px' }}>MCC Feedback Portal</h2>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.3px', marginBottom: '6px' }}>Review Hub</h2>
         <p style={{ color: '#64748b', marginTop: '4px', fontSize: '0.9rem' }}>Connecting to database...</p>
       </div>
     );
@@ -401,8 +421,8 @@ function Admin() {
             <img src={mccLogo} alt="MCC Logo" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
           </div>
           <div className="logo-text">
-            <h1>MCC Feedback Portal</h1>
-            <p>Community Feedback & Digital Solution System</p>
+            <h1>Review Hub</h1>
+            <p>Feedback & Digital Solution System</p>
           </div>
         </div>
 
@@ -583,7 +603,18 @@ function Admin() {
                     <div 
                       key={item.id} 
                       className="response-feed-card"
-                      style={{ cursor: 'default' }}
+                      onClick={() => setSelectedFeedback(item)}
+                      style={{ 
+                        cursor: 'pointer', 
+                        transition: 'all 0.2s ease', 
+                        borderLeft: '4px solid transparent'
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.borderLeftColor = '#6366f1';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.borderLeftColor = 'transparent';
+                      }}
                     >
                       <div className="response-header">
                         <div className="tags-row">
@@ -686,7 +717,7 @@ function Admin() {
                               <polyline points="3 6 5 6 21 6"></polyline>
                               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             </svg>
-                            {deletingId === item.id ? 'Confirm Delete?' : 'Delete Response'}
+                            {deletingId === item.id ? 'Confirm Delete?' : 'Delete'}
                           </button>
                         </div>
                       </div>
@@ -698,6 +729,172 @@ function Admin() {
           </div>
         </div>
       </main>
+
+      {/* Details Modal */}
+      {selectedFeedback && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(15, 23, 42, 0.6)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 99999,
+            padding: '16px',
+            boxSizing: 'border-box',
+            animation: 'fadeIn 0.2s ease'
+          }}
+          onClick={() => setSelectedFeedback(null)}
+        >
+          <div 
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              padding: '24px',
+              width: '100%',
+              maxWidth: '600px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+              border: '1px solid #f1f5f9',
+              fontFamily: "'Outfit', sans-serif",
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#0f2d59', fontWeight: 700 }}>Review Details</h3>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: '#64748b' }}>Response ID: {selectedFeedback.id}</p>
+              </div>
+              <button 
+                onClick={() => setSelectedFeedback(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '1.5rem',
+                  color: '#94a3b8',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '0.9rem', color: '#334155' }}>
+              {/* Profile info */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', background: '#f8fafc', padding: '12px 16px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+                <div><strong>Name:</strong> {selectedFeedback.name || 'Anonymous'}</div>
+                <div><strong>Department:</strong> {selectedFeedback.department || 'N/A'}</div>
+                <div style={{ gridColumn: 'span 2' }}><strong>Date Logged:</strong> {new Date(selectedFeedback.timestamp).toLocaleString()}</div>
+              </div>
+
+              {/* Problems Tags */}
+              <div>
+                <strong style={{ display: 'block', marginBottom: '6px', color: '#0f2d59' }}>Problem Type(s):</strong>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {selectedFeedback.problems.map(prob => (
+                    <span key={prob} className="badge problem-tag" style={{ margin: 0 }}>{prob}</span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Grid of properties */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 24px', borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
+                <div>
+                  <strong style={{ color: '#0f2d59' }}>Recurrence:</strong>
+                  <p style={{ margin: '4px 0 0 0', color: '#475569' }}>{selectedFeedback.frequency}</p>
+                </div>
+                <div>
+                  <strong style={{ color: '#0f2d59' }}>Who is Affected:</strong>
+                  <p style={{ margin: '4px 0 0 0', color: '#475569' }}>{selectedFeedback.affected}</p>
+                </div>
+                <div>
+                  <strong style={{ color: '#0f2d59' }}>End Users:</strong>
+                  <p style={{ margin: '4px 0 0 0', color: '#475569' }}>{selectedFeedback.userGroup}</p>
+                </div>
+                <div>
+                  <strong style={{ color: '#0f2d59' }}>Digital Tool Help:</strong>
+                  <p style={{ margin: '4px 0 0 0', color: '#475569' }}>{selectedFeedback.digitalToolHelp || 'N/A'}</p>
+                </div>
+              </div>
+
+              {selectedFeedback.digitalToolTypes && selectedFeedback.digitalToolTypes.length > 0 && (
+                <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
+                  <strong style={{ color: '#0f2d59', display: 'block', marginBottom: '4px' }}>Suggested Systems:</strong>
+                  <span style={{ color: '#6366f1', fontWeight: 600 }}>{selectedFeedback.digitalToolTypes.join(', ')}</span>
+                </div>
+              )}
+
+              {/* Description */}
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
+                <strong style={{ color: '#0f2d59', display: 'block', marginBottom: '6px' }}>Problem Description:</strong>
+                <div style={{ background: '#f8fafc', padding: '12px 16px', borderRadius: '8px', borderLeft: '4px solid #0f2d59', borderTop: '1px solid #cbd5e1', borderRight: '1px solid #cbd5e1', borderBottom: '1px solid #cbd5e1', whiteSpace: 'pre-wrap', lineHeight: 1.5, color: '#1e293b' }}>
+                  {selectedFeedback.description}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
+              <button 
+                type="button"
+                onClick={() => setSelectedFeedback(null)}
+                style={{
+                  background: '#f1f5f9',
+                  color: '#64748b',
+                  border: 'none',
+                  padding: '10px 16px',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontSize: '0.875rem'
+                }}
+              >
+                Close
+              </button>
+              <button 
+                type="button"
+                onClick={() => downloadResponsePDF(selectedFeedback)}
+                style={{
+                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  boxShadow: '0 4px 12px rgba(99, 102, 241, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -164,8 +164,8 @@ function App() {
             <img src={mccLogo} alt="MCC Logo" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
           </div>
           <div className="logo-text">
-            <h1>MCC Feedback Portal</h1>
-            <p>Community Feedback & Digital Solution System</p>
+            <h1>Review Hub</h1>
+            <p>Feedback & Digital Solution System</p>
           </div>
         </div>
 
