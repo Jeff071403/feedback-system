@@ -19,8 +19,8 @@ const isToday = (dateString) => {
   const d = new Date(dateString);
   const today = new Date();
   return d.getDate() === today.getDate() &&
-         d.getMonth() === today.getMonth() &&
-         d.getFullYear() === today.getFullYear();
+    d.getMonth() === today.getMonth() &&
+    d.getFullYear() === today.getFullYear();
 };
 
 function Admin() {
@@ -39,7 +39,7 @@ function Admin() {
       window.location.href = '/';
       return;
     }
-    
+
     // Load feedbacks on mount
     fetch(`${API_BASE_URL}/api/feedbacks/`)
       .then(res => {
@@ -70,7 +70,7 @@ function Admin() {
   const filteredFeedbacks = feedbacks.filter(item => {
     const matchesCategory = categoryFilter === 'All' || item.problems.includes(categoryFilter);
     const matchesSearch = item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.problems.some(p => p.toLowerCase().includes(searchQuery.toLowerCase()));
+      item.problems.some(p => p.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCategory && matchesSearch;
   });
 
@@ -211,12 +211,12 @@ function Admin() {
       margin: 12,
       filename: `Review_Report_${item.id}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2.5, useCORS: true, letterRendering: true },
+      html2canvas: { scale: 2.5, useCORS: true, letterRendering: true, windowWidth: 790 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     html2pdf()
-      .from(tempDiv.firstElementChild)
+      .from(tempDiv.firstChild)
       .set(pdfOptions)
       .save()
       .then(() => {
@@ -281,7 +281,7 @@ function Admin() {
         </div>
 
         <nav className="nav-tabs">
-          <button 
+          <button
             className="nav-tab"
             onClick={() => { window.location.href = '/'; }}
             style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
@@ -292,7 +292,7 @@ function Admin() {
             </svg>
             Go to Submit Form
           </button>
-          <button 
+          <button
             className="nav-tab active"
             onClick={handleLogout}
             style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
@@ -386,15 +386,15 @@ function Admin() {
                         <span className="category-count">{count}</span>
                       </div>
                       <div className="progress-track">
-                        <div 
-                          className="progress-fill" 
-                          style={{ 
+                        <div
+                          className="progress-fill"
+                          style={{
                             width: `${(count / maxCategoryCount) * 100}%`,
-                            background: cat.includes("Food") ? 'linear-gradient(90deg, #f59e0b, #ef4444)' : 
-                                        cat.includes("Infra") ? 'linear-gradient(90deg, #3b82f6, #8b5cf6)' : 
-                                        cat.includes("Internet") ? 'linear-gradient(90deg, #06b6d4, #3b82f6)' : 
-                                        cat.includes("Safety") ? 'linear-gradient(90deg, #ef4444, #f59e0b)' : 
-                                        'linear-gradient(90deg, var(--primary), var(--accent-purple))'
+                            background: cat.includes("Food") ? 'linear-gradient(90deg, #f59e0b, #ef4444)' :
+                              cat.includes("Infra") ? 'linear-gradient(90deg, #3b82f6, #8b5cf6)' :
+                                cat.includes("Internet") ? 'linear-gradient(90deg, #06b6d4, #3b82f6)' :
+                                  cat.includes("Safety") ? 'linear-gradient(90deg, #ef4444, #f59e0b)' :
+                                    'linear-gradient(90deg, var(--primary), var(--accent-purple))'
                           }}
                         ></div>
                       </div>
@@ -409,10 +409,10 @@ function Admin() {
               <div className="feed-filters-bar">
                 <div className="filter-group">
                   <span className="filter-label">Search:</span>
-                  <input 
-                    type="text" 
-                    className="select-filter" 
-                    placeholder="Search description..." 
+                  <input
+                    type="text"
+                    className="select-filter"
+                    placeholder="Search description..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     style={{ width: '150px' }}
@@ -421,7 +421,7 @@ function Admin() {
 
                 <div className="filter-group">
                   <span className="filter-label">Category:</span>
-                  <select 
+                  <select
                     className="select-filter"
                     value={categoryFilter}
                     onChange={(e) => setCategoryFilter(e.target.value)}
@@ -434,7 +434,7 @@ function Admin() {
                 </div>
 
                 {(categoryFilter !== 'All' || searchQuery) && (
-                  <button 
+                  <button
                     className="reset-filters-btn"
                     onClick={() => {
                       setCategoryFilter('All');
@@ -454,13 +454,13 @@ function Admin() {
                   </div>
                 ) : (
                   filteredFeedbacks.map(item => (
-                    <div 
-                      key={item.id} 
+                    <div
+                      key={item.id}
                       className="response-feed-card"
                       onClick={() => setSelectedFeedback(item)}
-                      style={{ 
-                        cursor: 'pointer', 
-                        transition: 'all 0.2s ease', 
+                      style={{
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
                         borderLeft: '4px solid transparent'
                       }}
                       onMouseOver={(e) => {
@@ -533,7 +533,7 @@ function Admin() {
                             Print / PDF
                           </button>
 
-                          <button 
+                          <button
                             onClick={(e) => {
                               e.stopPropagation();
                               deleteFeedback(item.id);
@@ -586,7 +586,7 @@ function Admin() {
 
       {/* Details Modal */}
       {selectedFeedback && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: 0,
@@ -605,7 +605,7 @@ function Admin() {
           }}
           onClick={() => setSelectedFeedback(null)}
         >
-          <div 
+          <div
             style={{
               background: '#ffffff',
               borderRadius: '16px',
@@ -629,7 +629,7 @@ function Admin() {
                 <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#0f2d59', fontWeight: 700 }}>Review Details</h3>
                 <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: '#64748b' }}>Response ID: {selectedFeedback.id}</p>
               </div>
-              <button 
+              <button
                 onClick={() => setSelectedFeedback(null)}
                 style={{
                   background: 'none',
@@ -704,7 +704,7 @@ function Admin() {
 
             {/* Modal Footer */}
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
-              <button 
+              <button
                 type="button"
                 onClick={() => setSelectedFeedback(null)}
                 style={{
@@ -720,7 +720,7 @@ function Admin() {
               >
                 Close
               </button>
-              <button 
+              <button
                 type="button"
                 onClick={() => downloadResponsePDF(selectedFeedback)}
                 style={{
