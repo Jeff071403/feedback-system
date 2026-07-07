@@ -139,19 +139,18 @@ function Admin() {
 
     tempDiv.innerHTML = `
       <div style="font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #334155; line-height: 1.5; font-size: 13px; width: 790px; box-sizing: border-box; padding: 24px; background: #ffffff;">
-        <!-- Logo + Header -->
-        <div style="background-color: #eef2ff; border-radius: 18px; padding: 18px; margin-bottom: 24px; border: 1px solid #dbeafe;">
-          <div style="display: flex; justify-content: center; margin-bottom: 16px;">
-            <img src="${mccLogoBig}" alt="MCC Logo" style="width: 140px; height: auto; object-fit: contain;" />
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; background-color: #eef2ff; border-radius: 18px; margin-bottom: 24px; border: 1px solid #dbeafe;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <img src="${mccLogoBig}" alt="MCC Logo" style="width: 78px; height: auto; object-fit: contain;" />
+            <div style="display: flex; flex-direction: column; font-family: 'Times New Roman', Times, serif; color: #0f2d59;">
+              <span style="font-size: 20px; font-weight: 700; line-height: 1.1;">Madras Christian College</span>
+              <span style="font-size: 14px; color: #475569; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; margin-top: 4px;">Review Report</span>
+              <span style="font-size: 11px; color: #475569; margin-top: 6px;">Individual Submitter Q&amp;A Summary</span>
+            </div>
           </div>
-          <div style="border-top: 1px solid #cbd5e1; padding-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
-            <div>
-              <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #0f2d59; letter-spacing: -0.5px;">Review Report</h1>
-              <p style="margin: 4px 0 0 0; font-size: 11px; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600;">Individual Submitter Q&A Summary</p>
-            </div>
-            <div style="background-color: #ffffff; border: 1px solid #cbd5e1; color: #0f2d59; padding: 6px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">
-              ${item.id}
-            </div>
+          <div style="background-color: #ffffff; border: 1px solid #cbd5e1; color: #0f2d59; padding: 6px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap;">
+            ${item.id}
           </div>
         </div>
 
