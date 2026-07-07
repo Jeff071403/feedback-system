@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Admin from './Admin.jsx';
+import mccLogo from './assets/mcc logo .png';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const problemOptions = [
@@ -159,16 +160,12 @@ function App() {
           }}
           style={{ cursor: 'pointer', userSelect: 'none' }}
         >
-          <div className="logo-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-              <path d="M2 17l10 5 10-5"></path>
-              <path d="M2 12l10 5 10-5"></path>
-            </svg>
+          <div className="logo-icon" style={{ background: 'none', boxShadow: 'none', overflow: 'visible' }}>
+            <img src={mccLogo} alt="MCC Logo" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
           </div>
           <div className="logo-text">
-            <h1>Campus Feedback Portal</h1>
-            <p>Institutional Feedback & Digital Solution System</p>
+            <h1>MCC Feedback Portal</h1>
+            <p>Community Feedback & Digital Solution System</p>
           </div>
         </div>
 
@@ -197,8 +194,8 @@ function App() {
               </div>
               <h2>Feedback Logged!</h2>
               <p>
-                Thank you for speaking up. We take campus issues seriously. 
-                Our developers evaluate each report to build and deploy custom digital tools.
+                Thank you for speaking up. We take all feedback seriously. 
+                Our developers evaluate each report to build and deploy custom digital solutions.
               </p>
               <div className="encouragement-alert">
                 <strong>We can deal with these problems!</strong> Administrators have received this request and are prioritizing the deployment of a custom app/portal to resolve it.
@@ -210,8 +207,8 @@ function App() {
           ) : (
             <div className="questionnaire-view page-fade-in">
               <div className="form-hero">
-                <h2>Share Your Campus Experience</h2>
-                <p>Help us improve your college experience. Report infrastructure, academic, or administrative issues — and suggest digital solutions that can make a difference.</p>
+                <h2>Share Your Experience</h2>
+                <p>Help us improve our community and services. Report infrastructure, service, or administrative issues — and suggest digital solutions that can make a difference.</p>
               </div>
 
               <form onSubmit={handleSubmit} className="questionnaire-card">

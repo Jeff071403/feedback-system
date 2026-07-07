@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import mccLogo from './assets/mcc logo .png';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -131,7 +132,7 @@ function Admin() {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Campus Feedback Response - ${item.id}</title>
+        <title>MCC Feedback Response - ${item.id}</title>
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
           body {
@@ -279,7 +280,7 @@ function Admin() {
       <body>
         <div class="header">
           <div class="header-left">
-            <h1>Campus Feedback Report</h1>
+            <h1>MCC Feedback Report</h1>
             <p>Individual Submitter Q&A Summary</p>
           </div>
           <div class="header-right">
@@ -335,7 +336,7 @@ function Admin() {
         </div>
 
         <div class="footer">
-          Generated automatically by Smart Campus Feedback System on ${new Date().toLocaleDateString()}
+          Generated automatically by MCC Feedback & Digital Solutions System on ${new Date().toLocaleDateString()}
         </div>
 
         <script>
@@ -383,13 +384,9 @@ function Admin() {
           boxShadow: '0 8px 24px rgba(99, 102, 241, 0.2)',
           animation: 'pulse 2s ease-in-out infinite'
         }}>
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
-            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-            <path d="M2 17l10 5 10-5"></path>
-            <path d="M2 12l10 5 10-5"></path>
-          </svg>
+          <img src={mccLogo} alt="MCC Logo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
         </div>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.3px', marginBottom: '6px' }}>Campus Feedback Portal</h2>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.3px', marginBottom: '6px' }}>MCC Feedback Portal</h2>
         <p style={{ color: '#64748b', marginTop: '4px', fontSize: '0.9rem' }}>Connecting to database...</p>
       </div>
     );
@@ -399,17 +396,13 @@ function Admin() {
     <div className="app-container">
       {/* App Header */}
       <header className="app-header">
-        <div className="logo-section">
-          <div className="logo-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-              <path d="M2 17l10 5 10-5"></path>
-              <path d="M2 12l10 5 10-5"></path>
-            </svg>
+        <div className="logo-section" style={{ userSelect: 'none' }}>
+          <div className="logo-icon" style={{ background: 'none', boxShadow: 'none', overflow: 'visible' }}>
+            <img src={mccLogo} alt="MCC Logo" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
           </div>
           <div className="logo-text">
-            <h1>Campus Feedback Portal</h1>
-            <p>Institutional Feedback & Digital Solution System</p>
+            <h1>MCC Feedback Portal</h1>
+            <p>Community Feedback & Digital Solution System</p>
           </div>
         </div>
 
@@ -442,7 +435,7 @@ function Admin() {
           <div className="admin-section-hero">
             <div>
               <h2>Admin Analytics Dashboard</h2>
-              <p>Review institutional feedback, prioritize campus issues, and deploy digital solutions.</p>
+              <p>Review community feedback, prioritize issues, and deploy digital solutions.</p>
             </div>
           </div>
           {/* Top Metrics Row */}
