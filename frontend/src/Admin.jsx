@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import mccLogo from './assets/mcc logo .png';
+import mccLogoBig from './assets/mcc-logo-big.png';
 import html2pdf from 'html2pdf.js';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -138,6 +139,11 @@ function Admin() {
 
     tempDiv.innerHTML = `
       <div style="font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #334155; line-height: 1.5; font-size: 13px; width: 790px; box-sizing: border-box; padding: 24px; background: #ffffff;">
+        <!-- Logo -->
+        <div style="display: flex; justify-content: center; margin-bottom: 18px;">
+          <img src="${mccLogoBig}" alt="MCC Logo" style="width: 140px; height: auto; object-fit: contain;" />
+        </div>
+
         <!-- Header -->
         <div style="border-bottom: 2.5px solid #0f2d59; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
           <div>
