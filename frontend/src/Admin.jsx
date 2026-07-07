@@ -142,15 +142,11 @@ function Admin() {
     tempDiv.style.position = 'fixed';
     tempDiv.style.left = '0';
     tempDiv.style.top = '0';
-    tempDiv.style.width = '790px'; // Maps perfectly to A4 PDF page width with standard margins
     tempDiv.style.zIndex = '-9999'; // Places it underneath everything so the user doesn't see it
     tempDiv.style.pointerEvents = 'none'; // Avoid block clicks
-    tempDiv.style.boxSizing = 'border-box';
-    tempDiv.style.padding = '24px';
-    tempDiv.style.background = '#ffffff';
 
     tempDiv.innerHTML = `
-      <div style="font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #334155; line-height: 1.5; font-size: 13px;">
+      <div style="font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #334155; line-height: 1.5; font-size: 13px; width: 790px; box-sizing: border-box; padding: 24px; background: #ffffff;">
         <!-- Header -->
         <div style="border-bottom: 2.5px solid #0f2d59; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
           <div>
@@ -229,7 +225,7 @@ function Admin() {
     };
 
     window.html2pdf()
-      .from(tempDiv)
+      .from(tempDiv.firstChild)
       .set(pdfOptions)
       .save()
       .then(() => {
