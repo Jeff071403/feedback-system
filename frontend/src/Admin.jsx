@@ -211,22 +211,55 @@ function Admin() {
       margin: 12,
       filename: `Review_Report_${item.id}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2.5, useCORS: true, letterRendering: true },
+      html2canvas: { scale: 2.5, useCORS: true, letterRendering: true, windowWidth: 790 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    html2pdf()
-      .from(tempDiv.firstChild)
-      .set(pdfOptions)
-      .save()
-      .then(() => {
-        document.body.removeChild(tempDiv);
-        alert(`Report ${item.id} downloaded successfully!`);
-      })
-      .catch((err) => {
-        console.error("PDF download failed: ", err);
-        document.body.removeChild(tempDiv);
-      });
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    if (isMobile) {
+      // Pre-open window to bypass Safari/Chrome popup blockers on mobile
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write('<p style="font-family: sans-serif; text-align: center; margin-top: 50px; color: #475569;">Generating PDF... Please wait.</p>');
+      }
+
+      html2pdf()
+        .from(tempDiv.firstChild)
+        .set(pdfOptions)
+        .toPdf()
+        .output('bloburl')
+        .then((blobUrl) => {
+          if (newWindow) {
+            newWindow.location.href = blobUrl;
+          } else {
+            window.open(blobUrl, '_blank');
+          }
+          document.body.removeChild(tempDiv);
+        })
+        .catch((err) => {
+          console.error("PDF generation failed: ", err);
+          if (newWindow) {
+            newWindow.close();
+          }
+          document.body.removeChild(tempDiv);
+          alert("Could not generate PDF. Please try again.");
+        });
+    } else {
+      html2pdf()
+        .from(tempDiv.firstChild)
+        .set(pdfOptions)
+        .save()
+        .then(() => {
+          document.body.removeChild(tempDiv);
+          alert(`Report ${item.id} downloaded successfully!`);
+        })
+        .catch((err) => {
+          console.error("PDF download failed: ", err);
+          document.body.removeChild(tempDiv);
+        });
+    }
   };
 
   const handleLogout = () => {
