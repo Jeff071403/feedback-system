@@ -120,259 +120,123 @@ function Admin() {
   };
 
   const downloadResponsePDF = (item) => {
-    const printWindow = window.open('', '_blank', 'width=800,height=900');
-    if (!printWindow) {
-      alert("Please allow popups to print/download the response report.");
-      return;
+    if (window.html2pdf) {
+      generatePDFDirectly(item);
+    } else {
+      // Load html2pdf dynamically from CDN
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      script.onload = () => {
+        generatePDFDirectly(item);
+      };
+      document.body.appendChild(script);
     }
+  };
 
+  const generatePDFDirectly = (item) => {
     const formattedProblems = Array.isArray(item.problems) ? item.problems.join(', ') : item.problems;
     const formattedToolTypes = Array.isArray(item.digitalToolTypes) ? item.digitalToolTypes.join(', ') : item.digitalToolTypes;
 
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Review Response - ${item.id}</title>
-        <style>
-          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
-          body {
-            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: #334155;
-            margin: 0;
-            padding: 24px;
-            font-size: 13px;
-            line-height: 1.5;
-            background-color: #fff;
-          }
-          .header {
-            border-bottom: 2px solid #0f2d59;
-            padding-bottom: 12px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-          .header-left h1 {
-            margin: 0;
-            font-size: 22px;
-            font-weight: 700;
-            color: #0f2d59;
-            letter-spacing: -0.5px;
-          }
-          .header-left p {
-            margin: 4px 0 0 0;
-            font-size: 11px;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            font-weight: 500;
-          }
-          .ticket-badge {
-            background-color: #f8fafc;
-            border: 1px solid #cbd5e1;
-            color: #0f2d59;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-          }
-          .meta-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            background: #f8fafc;
-            padding: 14px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #cbd5e1;
-          }
-          .meta-item {
-            font-size: 12px;
-            color: #475569;
-          }
-          .meta-item strong {
-            color: #0f2d59;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-          }
-          th, td {
-            text-align: left;
-            padding: 10px 12px;
-            border-bottom: 1px solid #cbd5e1;
-            vertical-align: top;
-            font-size: 12px;
-          }
-          th {
-            background-color: #f1f5f9;
-            color: #0f2d59;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            font-size: 11px;
-          }
-          .q-num {
-            background: #0f2d59;
-            color: #fff;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: 700;
-            margin-right: 8px;
-          }
-          .answer-cell {
-            color: #1e293b;
-            font-weight: 500;
-          }
-          .desc-section {
-            background: #f8fafc;
-            border-left: 4px solid #0f2d59;
-            padding: 12px 16px;
-            border-radius: 0 8px 8px 0;
-            margin-bottom: 20px;
-            border-top: 1px solid #cbd5e1;
-            border-right: 1px solid #cbd5e1;
-            border-bottom: 1px solid #cbd5e1;
-          }
-          .desc-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: #0f2d59;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-          .desc-content {
-            font-size: 12px;
-            color: #1e293b;
-            white-space: pre-wrap;
-            line-height: 1.5;
-          }
-          .footer {
-            margin-top: 32px;
-            text-align: center;
-            font-size: 10px;
-            color: #64748b;
-            border-top: 1px solid #cbd5e1;
-            padding-top: 12px;
-          }
-          @media print {
-            body {
-              padding: 10px;
-            }
-            .meta-grid {
-              background: #f8fafc !important;
-              border-color: #cbd5e1 !important;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            th {
-              background: #f1f5f9 !important;
-              color: #0f2d59 !important;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            .q-num {
-              background: #0f2d59 !important;
-              color: #fff !important;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            .desc-section {
-              background: #f8fafc !important;
-              border-color: #cbd5e1 !important;
-              border-left-color: #0f2d59 !important;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <div class="header-left">
-            <h1>Review Report</h1>
-            <p>Individual Submitter Q&A Summary</p>
+    // Create container element styled specifically for A4 layout rendering
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    tempDiv.style.top = '-9999px';
+    tempDiv.style.width = '790px'; // Maps perfectly to A4 PDF page width with standard margins
+    tempDiv.style.boxSizing = 'border-box';
+    tempDiv.style.padding = '20px';
+    tempDiv.style.background = '#ffffff';
+
+    tempDiv.innerHTML = `
+      <div style="font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #334155; line-height: 1.5; font-size: 13px;">
+        <!-- Header -->
+        <div style="border-bottom: 2.5px solid #0f2d59; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #0f2d59; letter-spacing: -0.5px;">Review Report</h1>
+            <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600;">Individual Submitter Q&A Summary</p>
           </div>
-          <div class="header-right">
-            <div class="ticket-badge">${item.id}</div>
+          <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; color: #0f2d59; padding: 6px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">
+            ${item.id}
           </div>
         </div>
 
-        <div class="meta-grid">
-          <div class="meta-item"><strong>Submitter Name:</strong> ${item.name || 'Anonymous'}</div>
-          <div class="meta-item"><strong>Department/Branch:</strong> ${item.department || 'N/A'}</div>
-          <div class="meta-item"><strong>Submission Date:</strong> ${new Date(item.timestamp).toLocaleString()}</div>
-          <div class="meta-item"><strong>Document Type:</strong> One-Page Report</div>
+        <!-- Meta Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: #f8fafc; padding: 14px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #cbd5e1;">
+          <div style="font-size: 12px; color: #475569;"><strong>Submitter Name:</strong> <span style="color: #0f2d59; font-weight: 600;">${item.name || 'Anonymous'}</span></div>
+          <div style="font-size: 12px; color: #475569;"><strong>Department/Branch:</strong> <span style="color: #0f2d59; font-weight: 600;">${item.department || 'N/A'}</span></div>
+          <div style="font-size: 12px; color: #475569; grid-column: span 2;"><strong>Submission Date:</strong> <span style="color: #0f2d59; font-weight: 600;">${new Date(item.timestamp).toLocaleString()}</span></div>
         </div>
 
-        <table>
+        <!-- Details Table -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden;">
           <thead>
-            <tr>
-              <th style="width: 50%;">Question</th>
-              <th style="width: 50%;">Answer</th>
+            <tr style="background-color: #f1f5f9;">
+              <th style="text-align: left; padding: 10px 12px; color: #0f2d59; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; font-size: 11px; border-bottom: 1.5px solid #cbd5e1; border-right: 1px solid #cbd5e1; width: 45%;">Question</th>
+              <th style="text-align: left; padding: 10px 12px; color: #0f2d59; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; font-size: 11px; border-bottom: 1.5px solid #cbd5e1; width: 55%;">Answer</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td><span class="q-num">1</span> What type of problem is this?</td>
-              <td class="answer-cell">${formattedProblems || 'None selected'}</td>
+            <tr style="border-bottom: 1px solid #cbd5e1;">
+              <td style="padding: 10px 12px; vertical-align: top; border-right: 1px solid #cbd5e1; font-weight: 500;"><span style="background: #0f2d59; color: #fff; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; margin-right: 8px;">1</span> What type of problem is this?</td>
+              <td style="padding: 10px 12px; vertical-align: top; color: #1e293b; font-weight: 500;">${formattedProblems || 'None selected'}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #cbd5e1;">
+              <td style="padding: 10px 12px; vertical-align: top; border-right: 1px solid #cbd5e1; font-weight: 500;"><span style="background: #0f2d59; color: #fff; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; margin-right: 8px;">2</span> How often does this problem occur?</td>
+              <td style="padding: 10px 12px; vertical-align: top; color: #1e293b; font-weight: 500;">${item.frequency}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #cbd5e1;">
+              <td style="padding: 10px 12px; vertical-align: top; border-right: 1px solid #cbd5e1; font-weight: 500;"><span style="background: #0f2d59; color: #fff; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; margin-right: 8px;">3</span> Who is most affected by it?</td>
+              <td style="padding: 10px 12px; vertical-align: top; color: #1e293b; font-weight: 500;">${item.affected}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #cbd5e1;">
+              <td style="padding: 10px 12px; vertical-align: top; border-right: 1px solid #cbd5e1; font-weight: 500;"><span style="background: #0f2d59; color: #fff; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; margin-right: 8px;">4</span> Could a digital tool help solve it?</td>
+              <td style="padding: 10px 12px; vertical-align: top; color: #1e293b; font-weight: 500;">${item.digitalToolHelp}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #cbd5e1;">
+              <td style="padding: 10px 12px; vertical-align: top; border-right: 1px solid #cbd5e1; font-weight: 500;"><span style="background: #0f2d59; color: #fff; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; margin-right: 8px;">5</span> What kind of digital tool would help?</td>
+              <td style="padding: 10px 12px; vertical-align: top; color: #1e293b; font-weight: 500;">${formattedToolTypes || 'None selected'}</td>
             </tr>
             <tr>
-              <td><span class="q-num">2</span> How often does this problem occur?</td>
-              <td class="answer-cell">${item.frequency}</td>
-            </tr>
-            <tr>
-              <td><span class="q-num">3</span> Who is most affected by it?</td>
-              <td class="answer-cell">${item.affected}</td>
-            </tr>
-            <tr>
-              <td><span class="q-num">4</span> Could a digital tool help solve it?</td>
-              <td class="answer-cell">${item.digitalToolHelp}</td>
-            </tr>
-            <tr>
-              <td><span class="q-num">5</span> What kind of digital tool would help?</td>
-              <td class="answer-cell">${formattedToolTypes || 'None selected'}</td>
-            </tr>
-            <tr>
-              <td><span class="q-num">6</span> Who would use this solution?</td>
-              <td class="answer-cell">${item.userGroup}</td>
+              <td style="padding: 10px 12px; vertical-align: top; border-right: 1px solid #cbd5e1; font-weight: 500;"><span style="background: #0f2d59; color: #fff; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; margin-right: 8px;">6</span> Who would use this solution?</td>
+              <td style="padding: 10px 12px; vertical-align: top; color: #1e293b; font-weight: 500;">${item.userGroup}</td>
             </tr>
           </tbody>
         </table>
 
-        <div class="desc-section">
-          <div class="desc-title">Question 7: Description of the Problem</div>
-          <div class="desc-content">${item.description}</div>
+        <!-- Description Box -->
+        <div style="background: #f8fafc; border-left: 4px solid #0f2d59; padding: 12px 16px; border-radius: 0 8px 8px 0; margin-bottom: 20px; border-top: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1;">
+          <div style="font-size: 12px; font-weight: 700; color: #0f2d59; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Question 7: Description of the Problem</div>
+          <div style="font-size: 12px; color: #1e293b; white-space: pre-wrap; line-height: 1.5;">${item.description}</div>
         </div>
 
-        <div class="footer">
+        <!-- Footer -->
+        <div style="margin-top: 32px; text-align: center; font-size: 10px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 12px;">
           Generated automatically by Review Hub Solutions System on ${new Date().toLocaleDateString()}
         </div>
-
-        <script>
-          window.onload = function() {
-            window.print();
-            setTimeout(function() {
-              window.close();
-            }, 500);
-          };
-        </script>
-      </body>
-      </html>
+      </div>
     `;
 
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+    document.body.appendChild(tempDiv);
+
+    const pdfOptions = {
+      margin: 12,
+      filename: `Review_Report_${item.id}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2.5, useCORS: true, letterRendering: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    window.html2pdf()
+      .from(tempDiv)
+      .set(pdfOptions)
+      .save()
+      .then(() => {
+        document.body.removeChild(tempDiv);
+      })
+      .catch((err) => {
+        console.error("PDF download failed: ", err);
+        document.body.removeChild(tempDiv);
+      });
   };
 
   const handleLogout = () => {
@@ -796,10 +660,10 @@ function Admin() {
             {/* Modal Body */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '0.9rem', color: '#334155' }}>
               {/* Profile info */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', background: '#f8fafc', padding: '12px 16px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: '#f8fafc', padding: '14px 16px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
                 <div><strong>Name:</strong> {selectedFeedback.name || 'Anonymous'}</div>
-                <div><strong>Department:</strong> {selectedFeedback.department || 'N/A'}</div>
-                <div style={{ gridColumn: 'span 2' }}><strong>Date Logged:</strong> {new Date(selectedFeedback.timestamp).toLocaleString()}</div>
+                <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '8px' }}><strong>Department:</strong> {selectedFeedback.department || 'N/A'}</div>
+                <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '8px' }}><strong>Date Logged:</strong> {new Date(selectedFeedback.timestamp).toLocaleString()}</div>
               </div>
 
               {/* Problems Tags */}
