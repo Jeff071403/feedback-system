@@ -216,7 +216,7 @@ function Admin() {
     };
 
     html2pdf()
-      .from(tempDiv.firstChild)
+      .from(tempDiv.firstElementChild)
       .set(pdfOptions)
       .save()
       .then(() => {
