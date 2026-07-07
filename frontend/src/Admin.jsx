@@ -139,12 +139,14 @@ function Admin() {
 
     // Create container element styled specifically for A4 layout rendering
     const tempDiv = document.createElement('div');
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.left = '-9999px';
-    tempDiv.style.top = '-9999px';
+    tempDiv.style.position = 'fixed';
+    tempDiv.style.left = '0';
+    tempDiv.style.top = '0';
     tempDiv.style.width = '790px'; // Maps perfectly to A4 PDF page width with standard margins
+    tempDiv.style.zIndex = '-9999'; // Places it underneath everything so the user doesn't see it
+    tempDiv.style.pointerEvents = 'none'; // Avoid block clicks
     tempDiv.style.boxSizing = 'border-box';
-    tempDiv.style.padding = '20px';
+    tempDiv.style.padding = '24px';
     tempDiv.style.background = '#ffffff';
 
     tempDiv.innerHTML = `
@@ -232,6 +234,7 @@ function Admin() {
       .save()
       .then(() => {
         document.body.removeChild(tempDiv);
+        alert(`Report ${item.id} downloaded successfully!`);
       })
       .catch((err) => {
         console.error("PDF download failed: ", err);
